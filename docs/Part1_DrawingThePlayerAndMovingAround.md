@@ -43,3 +43,19 @@ val grid: TileGrid = SwingApplications.startTileGrid(
 ```
 
 When I run the code, an empty window is getting displayed, with the set title and size.
+
+### Drawing the player
+
+Traditionally, the player is represented by an `@`, so I'll just try to draw that into the grid.
+I just tried around, and, apparently, this does the job:
+
+```kotlin
+
+    grid.draw(
+        Tile.createCharacterTile('@', StyleSet.defaultStyle()),
+        Position.create(40, 25)
+    )
+
+```
+
+The default style is white on black as it seems, which is fine for now, but I might change it later.
