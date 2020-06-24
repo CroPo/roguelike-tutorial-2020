@@ -1,4 +1,4 @@
-# /r/roguelikedev Tutorial (2018)
+# /r/roguelikedev Tutorial (2020)
 
 ![Logo](https://i.imgur.com/sgsO37A.png)
 
@@ -7,5 +7,7 @@ I chose to follow along using [Kotlin](https://kotlinlang.org/) as programming l
 
 Every part of the tutorial will be a separate tag. Additionally, there is a writeup of my experience for every step in 
 the `docs` directory:
+
+- [Part 0: Setting up](docs/Part0_SettingUp.md)
 
 Again, feel free to comment every piece of code. The main purpose for my participation is to learn Kotlin, so anything helps.
