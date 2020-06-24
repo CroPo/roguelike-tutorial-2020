@@ -9,5 +9,6 @@ Every part of the tutorial will be a separate tag. Additionally, there is a writ
 the `docs` directory:
 
 - [Part 0: Setting up](docs/Part0_SettingUp.md)
+- [Part 1 - Drawing the ‘@’ symbol and moving it around](docs/Part1_DrawingThePlayerAndMovingAround.md)
 
 Again, feel free to comment every piece of code. The main purpose for my participation is to learn Kotlin, so anything helps.
