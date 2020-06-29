@@ -58,4 +58,42 @@ I just tried around, and, apparently, this does the job:
 
 ```
 
-The default style is white on black as it seems, which is fine for now, but I might change it later.
+The default style is white on black, and this fits just fine for now.
+
+### Utilizing Zircon
+
+While the player character does show up on the exact location where I want him to be, it's not really the correct way
+to display it.
+
+Zircon uses a system of GUI Components to display stuff on the screen. One of those components is the `GameComponent`,
+which is (basically) responsible for rendering the world in a given viewport.
+
+It takes a `GameArea` - a 3D representation of all available tiles, so, more or less, a 3D map of the game, which has
+a defined size, and a visible size.
+
+With this, I create a game area with the same size as the window, and wrap it into a component, which itself is attached
+to the screen.
+
+```kotlin
+val screen = ScreenBuilder.createScreenFor(grid)
+
+val gameArea = GameAreaBuilder.newBuilder<Tile, Block<Tile>>()
+    .withVisibleSize(Size3D.create(80, 50, 1))
+    .withActualSize(Size3D.create(80, 50, 1))
+    .build()
+
+screen.addComponent(
+    GameComponentBuilder.newBuilder<Tile, Block<Tile>>()
+        .withGameArea(gameArea)
+        .build()
+)
+```
+
+And with this, the player character is displayed at the defined position
+
+```kotlin
+gameArea.setBlockAt(
+    Position3D.create(40,25,0),
+    Block.create(Tile.createCharacterTile('@', StyleSet.defaultStyle()))
+)
+```
