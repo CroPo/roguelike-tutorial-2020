@@ -2,6 +2,7 @@ package com.cropo
 
 import com.cropo.action.EscapeAction
 import com.cropo.action.MovementAction
+import com.cropo.entity.Entity
 import com.cropo.input.handleKeyboardEvent
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.SwingApplications
@@ -9,8 +10,8 @@ import org.hexworks.zircon.api.application.AppConfig
 import org.hexworks.zircon.api.builder.component.GameComponentBuilder
 import org.hexworks.zircon.api.builder.game.GameAreaBuilder
 import org.hexworks.zircon.api.builder.screen.ScreenBuilder
+import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.*
-import org.hexworks.zircon.api.graphics.StyleSet
 import org.hexworks.zircon.api.grid.TileGrid
 import org.hexworks.zircon.api.uievent.KeyboardEventType
 import org.hexworks.zircon.api.uievent.Pass
@@ -18,7 +19,11 @@ import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
 
-    var playerPosition = Position3D.create(40, 25, 0)
+    val player = Entity(Position3D.create(40, 25, 0),
+    '@', TileColor.defaultForegroundColor())
+    val npc = Entity(Position3D.create(20, 12, 0),
+        '@', TileColor.defaultForegroundColor())
+    val entities = listOf(player, npc)
 
     val grid: TileGrid = SwingApplications.startTileGrid(
         AppConfig.newBuilder()
@@ -45,7 +50,7 @@ fun main(args: Array<String>) {
         when (val action = handleKeyboardEvent(event)) {
             is EscapeAction -> exitProcess(0)
             is MovementAction -> {
-                playerPosition = playerPosition.withRelativeX(action.dx).withRelativeY(action.dy)
+                player.position = player.position.withRelativeX(action.dx).withRelativeY(action.dy)
             }
         }
 
@@ -55,18 +60,27 @@ fun main(args: Array<String>) {
             }
         }
 
-        gameArea.setBlockAt(
-            playerPosition,
-            Block.create(Tile.createCharacterTile('@', StyleSet.defaultStyle()))
-        )
-
+        for (entity in entities) {
+            gameArea.setBlockAt(
+                entity.position,
+                Block.create(Tile.newBuilder()
+                    .withCharacter(entity.character)
+                    .withForegroundColor(entity.color)
+                    .build())
+            )
+        }
         Pass
     }
 
-    gameArea.setBlockAt(
-        playerPosition,
-        Block.create(Tile.createCharacterTile('@', StyleSet.defaultStyle()))
-    )
+    for (entity in entities) {
+        gameArea.setBlockAt(
+            entity.position,
+            Block.create(Tile.newBuilder()
+                .withCharacter(entity.character)
+                .withForegroundColor(entity.color)
+                .build())
+        )
+    }
 
     screen.display()
 }

@@ -13,4 +13,22 @@ the position of _something_. And `Entity` is a good name for that thing. A set o
 specific thing. With the scope of this tutorial, there is no need to use an _actual_ ECS, a set of
 relatively static entities with a predefined set of components will be just fine enough.
 
-I will probably expand this a bit further
+I will probably expand this a bit further, we'll see. For now, a simple plain `Entity` class will do.
+
+```kotlin
+class Entity(var position: Position3D, val character: Char, val color : TileColor)
+```
+
+Yes, I absolutely love the short and pragmatic syntax of Kotlin.
+
+After the change, the rendering looks a bit different, too:
+
+```kotlin
+gameArea.setBlockAt(
+    player.position,
+    Block.create(Tile.newBuilder()
+        .withCharacter(player.character)
+        .withForegroundColor(player.color)
+        .build())
+)
+```

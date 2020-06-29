@@ -8,7 +8,8 @@ I chose to follow along using [Kotlin](https://kotlinlang.org/) as programming l
 Every part of the tutorial will be a separate tag. Additionally, there is a writeup of my experience for every step in 
 the `docs` directory:
 
-- [Part 0: Setting up](docs/Part0_SettingUp.md)
+- [Part 0 - Setting up](docs/Part0_SettingUp.md)
 - [Part 1 - Drawing the ‘@’ symbol and moving it around](docs/Part1_DrawingThePlayerAndMovingAround.md)
+- [Part 2 - The generic Entity, the render functions, and the map](docs/Part2_TheGenericEntityTheRenderFunctionsAndTheMap.md)
 
 Again, feel free to comment every piece of code. The main purpose for my participation is to learn Kotlin, so anything helps.
