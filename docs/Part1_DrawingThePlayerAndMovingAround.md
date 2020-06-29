@@ -1,7 +1,7 @@
 # Part 1 - Drawing the ‘@’ symbol and moving it around
 
 - [Reddit Post on /r/roguelikedev](https://old.reddit.com/r/roguelikedev/comments/ha1zty/so_it_begins_roguelikedev_does_the_complete/)
-- [Original tutorial](http://rogueliketutorials.com/tutorials/tcod/part-1/)
+- [Original tutorial](http://rogueliketutorials.com/tutorials/tcod/v2/part-1/)
 
 ## Opening a window
 
@@ -97,3 +97,72 @@ gameArea.setBlockAt(
     Block.create(Tile.createCharacterTile('@', StyleSet.defaultStyle()))
 )
 ```
+
+### Moving the player around
+
+The next thing to do is some even handling, to move the player around.
+First of all, instead of hardcoding the player position, I will use a `Position3D` to store the current position.
+Currently, there are only the x and y coordinate needed, but Zircon works only three-dimensional, so the z coordinate
+will always be 0, at least for now.
+
+```kotlin
+var playerPosition = Position3D.create(40,25,0)
+```
+
+I'm using `var` instead of `val`, because this variable will change.
+
+Now to some event handling. I can simply attach an event handler directly to the `screen`
+
+```kotlin
+screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
+
+    when (event.code) {
+        KeyCode.UP -> playerPosition = playerPosition.withRelativeY(-1)
+        KeyCode.DOWN -> playerPosition = playerPosition.withRelativeY(1)
+        KeyCode.LEFT -> playerPosition = playerPosition.withRelativeX(-1)
+        KeyCode.RIGHT -> playerPosition = playerPosition.withRelativeX(1)
+        KeyCode.ESCAPE -> exitProcess(0)
+        else -> {
+        }
+    }
+
+    gameArea.setBlockAt(
+        playerPosition,
+        Block.create(Tile.createCharacterTile('@', StyleSet.defaultStyle()))
+    )
+
+    Pass
+}
+```
+
+With this code, I can move the `@` around with the arrow keys. Since there is no `clear` or `overrideAll` method 
+for the `gameArea`, there is a trail of `@` characters at the moment. 
+
+There are basically a few ways to handle this. First, I could override the whole `gameArea` every time something moves.
+Secondly, I could just replace the former position with an empty tile. Or I could create a separate layer to draw all
+the game objects on, which I can clear before every update.
+
+The first one would pretty much be the easiest one, and is basically the same way the libtcod tutorial handles it.
+
+Resetting the current position after moving to another needs some extended effort: I need to save which tile was on
+the occupied position before. This may work with one movable tile, but it's prone to errors once more than one moveable
+entity is introduced. 
+
+The layer thing might be the cleanest at first glance, but the layer needs to be put on the screen, and not on a component.
+Also, if there is a need for maps with bigger than screen size, rearranging the layer might become a problem because
+there is no direct interaction between the layer and the game component.
+
+So, I just go with the _redraw everything_ option. Which shouldn't really be a problem on a somewhat modern processor.
+
+That means, before I move the player I need to do this:
+
+```kotlin
+for (x in 0..80) {
+    for(y in 0..50) {
+        gameArea.setBlockAt(Position3D.create(x,y,0), Block.create(Tile.defaultTile()))
+    }
+}
+```
+
+With that I now have a, well, big pile of messy code, at least for now. But it's a big pile of messy code which works,
+and this is fine for now.
