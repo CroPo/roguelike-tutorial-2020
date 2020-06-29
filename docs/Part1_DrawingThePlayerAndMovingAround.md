@@ -44,7 +44,7 @@ val grid: TileGrid = SwingApplications.startTileGrid(
 
 When I run the code, an empty window is getting displayed, with the set title and size.
 
-### Drawing the player
+## Drawing the player
 
 Traditionally, the player is represented by an `@`, so I'll just try to draw that into the grid.
 I just tried around, and, apparently, this does the job:
@@ -60,7 +60,7 @@ I just tried around, and, apparently, this does the job:
 
 The default style is white on black, and this fits just fine for now.
 
-### Utilizing Zircon
+## Utilizing Zircon
 
 While the player character does show up on the exact location where I want him to be, it's not really the correct way
 to display it.
@@ -98,7 +98,7 @@ gameArea.setBlockAt(
 )
 ```
 
-### Moving the player around
+## Moving the player around
 
 The next thing to do is some even handling, to move the player around.
 First of all, instead of hardcoding the player position, I will use a `Position3D` to store the current position.
@@ -166,3 +166,70 @@ for (x in 0..80) {
 
 With that I now have a, well, big pile of messy code, at least for now. But it's a big pile of messy code which works,
 and this is fine for now.
+
+## Improved event handling
+
+All the stuff which is done right now is done in a single file just in the best spaghetti-code way possible. Which is
+why I will introduce actions. I might differ a bit from the tutorial here, again, which is because of how different 
+both Zircon and libtcod behave in general.
+
+Right now, the `Action` is just an interface without members or methods, and all specific actions aren't much different:
+
+```kotlin
+interface Action
+
+class EscapeAction : Action
+
+class MovementAction(val dx: Int = 0, val dy: Int = 0) : Action
+
+class NoAction : Action
+```
+
+The `NoAction` is the return type if an unmapped key was pressed.
+
+The input handler is just a function right now, and it will probably stay that way
+
+```kotlin
+fun handleKeyboardEvent(event: KeyboardEvent) : Action {
+    return when (event.code) {
+        KeyCode.UP -> MovementAction(dy = -1)
+        KeyCode.DOWN -> MovementAction(dy = 1)
+        KeyCode.LEFT -> MovementAction(dx = -1)
+        KeyCode.RIGHT -> MovementAction(dx = 1)
+        KeyCode.ESCAPE -> EscapeAction()
+        else -> {
+            NoAction()
+        }
+    }
+}
+```
+
+I don't really need a class to wrap this in. Maybe later, but not right now
+
+The `handleKeyboardEvent` now looks like this after the change:
+
+```kotlin
+screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
+    when (val action = handleKeyboardEvent(event)) {
+        is EscapeAction -> exitProcess(0)
+        is MovementAction -> {
+            playerPosition = playerPosition.withRelativeX(action.dx).withRelativeY(action.dy)
+        }
+    }
+
+    for (x in 0..80) {
+        for (y in 0..50) {
+            gameArea.setBlockAt(Position3D.create(x, y, 0), Block.create(Tile.defaultTile()))
+        }
+    }
+
+    gameArea.setBlockAt(
+        playerPosition,
+        Block.create(Tile.createCharacterTile('@', StyleSet.defaultStyle()))
+    )
+
+    Pass
+}
+```
+
+Mission accomplished: Successfully saved about 5 lines in this lambda. 

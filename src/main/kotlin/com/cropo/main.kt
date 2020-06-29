@@ -1,8 +1,9 @@
 package com.cropo
 
-import kotlinx.coroutines.delay
+import com.cropo.action.EscapeAction
+import com.cropo.action.MovementAction
+import com.cropo.input.handleKeyboardEvent
 import org.hexworks.zircon.api.CP437TilesetResources
-import org.hexworks.zircon.api.DrawSurfaces
 import org.hexworks.zircon.api.SwingApplications
 import org.hexworks.zircon.api.application.AppConfig
 import org.hexworks.zircon.api.builder.component.GameComponentBuilder
@@ -11,7 +12,6 @@ import org.hexworks.zircon.api.builder.screen.ScreenBuilder
 import org.hexworks.zircon.api.data.*
 import org.hexworks.zircon.api.graphics.StyleSet
 import org.hexworks.zircon.api.grid.TileGrid
-import org.hexworks.zircon.api.uievent.KeyCode
 import org.hexworks.zircon.api.uievent.KeyboardEventType
 import org.hexworks.zircon.api.uievent.Pass
 import kotlin.system.exitProcess
@@ -42,14 +42,10 @@ fun main(args: Array<String>) {
     )
 
     screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
-
-        when (event.code) {
-            KeyCode.UP -> playerPosition = playerPosition.withRelativeY(-1)
-            KeyCode.DOWN -> playerPosition = playerPosition.withRelativeY(1)
-            KeyCode.LEFT -> playerPosition = playerPosition.withRelativeX(-1)
-            KeyCode.RIGHT -> playerPosition = playerPosition.withRelativeX(1)
-            KeyCode.ESCAPE -> exitProcess(0)
-            else -> {
+        when (val action = handleKeyboardEvent(event)) {
+            is EscapeAction -> exitProcess(0)
+            is MovementAction -> {
+                playerPosition = playerPosition.withRelativeX(action.dx).withRelativeY(action.dy)
             }
         }
 
