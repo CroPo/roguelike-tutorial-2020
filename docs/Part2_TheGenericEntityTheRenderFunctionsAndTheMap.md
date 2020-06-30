@@ -78,3 +78,39 @@ class Engine(private val entities: List<Entity>, private val player: Entity) {
 
 At the very least, the `main.kt` file looks a lot cleaner now. Which is a big advantage by itself.
 
+## Adding a (static) game map
+
+Good news is, the `gameArea` is already what the game map is in the tutorial. 
+Bad news is - it's not exactly how I would need it. In the tutorial, the game map only represents
+the structure of the dungeon itself, and then there is a separat console object to render it's contents to.
+
+The `gameArea` is pretty much both. A three-dimensional representation of the game world, which also
+directly renders it's contents due to being wrapped in a `GameComponent`, but I need to redraw each
+of the tiles on every update, or at least when an entity changed it's place. Basically, the same
+problem as before, but my solution didn't really solve the problem at all.
+
+The two possibilities are to either have a separate map where I have the structure of the base map
+defined, or to modify the `GameArea` a bit. I think I'll just do the latter. Which also
+saves me from keeping this code any longer:
+
+```kotlin
+for (x in 0..gameArea.actualSize.xLength) {
+    for (y in 0..gameArea.actualSize.yLength) {
+        gameArea.setBlockAt(Position3D.create(x, y, 0), Block.create(Tile.defaultTile()))
+    }
+}
+```
+
+To solve the problem here, each position on the game world must store its original `Tile`. I don't
+think building a new implementation of `GameArea` will do the trick, because, in its very basics, it's
+just a collection of blocks anyways. A `Block` is, as far as I understood it, a collection of 
+information about a single position in the three-dimensional world. 
+
+The philosophical question now is - are walls and floors entities, too? Or are they just tiles? 
+Going the _everything is an entity_ way would bring me a bit further away from the tutorial, but 
+opens a lot of nice other opportunities, and might even make thing less complex in the future, 
+especially when I think of collision detection and FOV stuff.
+
+So I think I'll go with the _everything is an entity_ approach.
+
+  
