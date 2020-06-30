@@ -186,3 +186,14 @@ fun removeEntity(entity: Entity) {
 I do not check for an already existing other `TERRAIN` entity here, even if it would make sense to some
 extent. But the terrain is pretty static for now, so I don't really see that it's necessary to add at
 the moment.
+
+And, to finalize this (for now at least), I will override the `content` member, too. As far as I
+understood, this one is responsible for which `Tile` is getting displayed.
+
+```kotlin
+override var content: Tile
+    get() = entities.first().tile
+    set(value) {}
+```
+
+With some small changes in both the `main.kt` and the `Engine` class, the code compiles again.

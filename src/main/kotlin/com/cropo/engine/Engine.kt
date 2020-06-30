@@ -4,6 +4,7 @@ import com.cropo.action.EscapeAction
 import com.cropo.action.MovementAction
 import com.cropo.entity.Entity
 import com.cropo.input.handleKeyboardEvent
+import com.cropo.world.WorldBlock
 import org.hexworks.zircon.api.data.Block
 import org.hexworks.zircon.api.data.Position3D
 import org.hexworks.zircon.api.data.Tile
@@ -22,21 +23,9 @@ class Engine(private val entities: List<Entity>, private val player: Entity) {
         }
     }
 
-    fun render(gameArea: GameArea<Tile, Block<Tile>>) {
-
-        for (x in 0..gameArea.actualSize.xLength) {
-            for (y in 0..gameArea.actualSize.yLength) {
-                gameArea.setBlockAt(Position3D.create(x, y, 0), Block.create(Tile.defaultTile()))
-            }
-        }
-
+    fun render(gameArea: GameArea<Tile, WorldBlock>) {
         for (entity in entities) {
-            gameArea.setBlockAt(
-                entity.position,
-                Block.create(
-                    entity.tile
-                )
-            )
+            gameArea.fetchBlockAt(entity.position).get().addEntity(entity)
         }
     }
 }

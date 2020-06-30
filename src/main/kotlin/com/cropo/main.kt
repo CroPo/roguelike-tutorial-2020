@@ -3,6 +3,7 @@ package com.cropo
 import com.cropo.engine.Engine
 import com.cropo.entity.Entity
 import com.cropo.entity.EntityType
+import com.cropo.world.WorldBlock
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.SwingApplications
 import org.hexworks.zircon.api.application.AppConfig
@@ -33,7 +34,7 @@ fun main(args: Array<String>) {
 
     val npc = Entity(
         Position3D.create(screenSize.width / 3, screenSize.height / 3, 0),
-        EntityType.ACTOR,
+        EntityType.FURNITURE,
         Tile.newBuilder()
             .withCharacter('@')
             .withBackgroundColor(TileColor.transparent())
@@ -53,20 +54,33 @@ fun main(args: Array<String>) {
 
     val screen = ScreenBuilder.createScreenFor(grid)
 
-    val gameArea = GameAreaBuilder.newBuilder<Tile, Block<Tile>>()
+    val gameArea = GameAreaBuilder.newBuilder<Tile, WorldBlock>()
         .withVisibleSize(Size3D.create(screenSize.width, screenSize.height, 1))
         .withActualSize(Size3D.create(screenSize.width, screenSize.height, 1))
         .build()
 
+    // temporary - create all blocks in game area
+    for(x in 0..screenSize.width) {
+        for(y in 0..screenSize.height) {
+            gameArea.setBlockAt(Position3D.create(x,y,0),WorldBlock())
+        }
+    }
+
     engine.render(gameArea)
 
     screen.addComponent(
-        GameComponentBuilder.newBuilder<Tile, Block<Tile>>()
+        GameComponentBuilder.newBuilder<Tile, WorldBlock>()
             .withGameArea(gameArea)
             .build()
     )
 
     screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
+
+        // temporary removal of all entities to prevent trails
+        for (entity in entities) {
+            gameArea.fetchBlockAt(entity.position).get().removeEntity(entity)
+        }
+
         engine.handleEvents(event)
         engine.render(gameArea)
         Processed

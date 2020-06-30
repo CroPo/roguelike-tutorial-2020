@@ -22,6 +22,9 @@ class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
                 else -> Tile.empty()
             }
 
+    override var content: Tile
+        get() = entities.first().tile
+        set(value) {}
 
     fun addEntity(entity: Entity) {
         entities.add(entity)
