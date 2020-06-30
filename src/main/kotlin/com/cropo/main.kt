@@ -2,7 +2,9 @@ package com.cropo
 
 import com.cropo.engine.Engine
 import com.cropo.entity.Entity
+import com.cropo.entity.EntityBlueprint
 import com.cropo.entity.EntityType
+import com.cropo.tile.TileBlueprint
 import com.cropo.world.WorldBlock
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.SwingApplications
@@ -14,9 +16,7 @@ import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.*
 import org.hexworks.zircon.api.grid.TileGrid
 import org.hexworks.zircon.api.uievent.KeyboardEventType
-import org.hexworks.zircon.api.uievent.Pass
 import org.hexworks.zircon.api.uievent.Processed
-import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
 
@@ -31,17 +31,8 @@ fun main(args: Array<String>) {
             .withForegroundColor(TileColor.defaultForegroundColor())
             .build()
     )
-
-    val npc = Entity(
-        Position3D.create(screenSize.width / 3, screenSize.height / 3, 0),
-        EntityType.TERRAIN,
-        Tile.newBuilder()
-            .withCharacter('@')
-            .withForegroundColor(TileColor.create(0, 200, 200))
-            .withBackgroundColor(TileColor.create(70, 0, 0))
-            .build()
-    )
-    val entities = listOf(player, npc)
+    val entities = listOf(player, EntityBlueprint.wallEntity(Position3D.create(15,15,0)), EntityBlueprint.floorEntity(
+        Position3D.create(15,16,0)))
     val engine = Engine(entities, player)
 
     val grid: TileGrid = SwingApplications.startTileGrid(

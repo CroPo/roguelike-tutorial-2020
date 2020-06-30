@@ -266,3 +266,48 @@ class Entity(
 ```
 As you can see, I completely skipped the `dark` part, for now. I will add this a bit differently later,
 when the FOV stuff is getting implemented.
+
+## Predefined tiles and entities
+
+Just as the tutorial suggest, some predefined tile typed, like _floor_ or _wall_, would be a nice 
+thing to have. Building those all the time again is a lot of copy and paste code. Usually, in Java, the
+first thing one would do is to implement some factories. A _lot_ of factories. With abstract factories
+in between. Just to have more boilerplate code in the end than before.
+
+Not that it would be necessary - I can do what I need with some `object`s, too.
+
+```kotlin
+object EntityBlueprint {
+
+    fun wallEntity(position: Position3D): Entity {
+        return Entity(position, EntityType.TERRAIN, TileBlueprint.wall(), walkable = false, transparent = false)
+    }
+
+    fun floorEntity(position: Position3D): Entity {
+        return Entity(position, EntityType.TERRAIN, TileBlueprint.floor())
+    }
+}
+```
+
+```kotlin
+object TileBlueprint {
+    fun wall(): Tile {
+        return Tile.newBuilder()
+            .withCharacter('#')
+            .withForegroundColor(TileColor.create(200,200,200))
+            .withBackgroundColor(TileColor.create(160,150,150))
+            .build()
+    }
+
+    fun floor(): Tile {
+        return Tile.newBuilder()
+            .withCharacter('.')
+            .withForegroundColor(TileColor.create(70,70,70))
+            .withBackgroundColor(TileColor.create(50,50,50))
+            .build()
+    }
+}
+```
+ 
+For now, these are the only generic entities and tiles I use. I'll expand this in the future 
+whenever something new needs to be added.
