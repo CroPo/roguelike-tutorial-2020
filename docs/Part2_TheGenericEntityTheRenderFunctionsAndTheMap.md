@@ -120,8 +120,8 @@ entities there.
 This leads me to this class for a beginning
 
 ```kotlin
-class WorldBlock(emptyTile: Tile = Tile.empty(), private val entities: MutableList<Entity> = mutableListOf()) :
-    BaseBlock<Tile>(emptyTile, persistentMapOf()) {
+class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
+    BaseBlock<Tile>(Tile.empty(), persistentMapOf()) {
 
    override fun createCopy(): Block<Tile> {
        return WorldBlock(emptyTile)
@@ -153,3 +153,36 @@ enum class EntityType {
 I did not only add the `EntityType`, but instead of `character` and `tileColor`, an entity now also
 holds a `Tile`. Of course, this means changing every entity which is available in the code. But that
 is not too much of a problem, since there are only 2 of them so far.
+
+Now, some more changes in the WorldBlock. First of all, I want the `emptyTile` to always return the 
+tile of the `TERRAIN` entity on this block.
+
+```kotlin
+    override val emptyTile: Tile
+        get() =
+            when {
+                entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
+                else -> Tile.empty()
+            }
+```
+
+I swear, I do love Kotlin more with every single line I write.
+
+Next thing is - I need a way to add and remove entities from the Block. The `addEntities` method does
+also sort the list of entities by the entity type, which means all I have to do is to display
+the first (or last) element.
+
+```kotlin
+fun addEntity(entity: Entity) {
+    entities.add(entity)
+    entities.sortBy { it.type }
+}
+
+fun removeEntity(entity: Entity) {
+    entities.remove(entity)
+}
+```
+
+I do not check for an already existing other `TERRAIN` entity here, even if it would make sense to some
+extent. But the terrain is pretty static for now, so I don't really see that it's necessary to add at
+the moment.
