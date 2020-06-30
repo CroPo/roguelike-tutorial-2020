@@ -384,4 +384,7 @@ class NoAction : Action {
     }
 }
 ```
+This is also a bit temporary. I really want to move this to a message bus or something similar,
+so I can avoid all the high coupling going on.
 
+And with that. part 2 of the tutorial is done, too.
