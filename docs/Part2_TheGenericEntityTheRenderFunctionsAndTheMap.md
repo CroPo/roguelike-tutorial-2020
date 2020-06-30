@@ -238,3 +238,31 @@ But I already figured it out - instead of overriding `tiles[CONTENT]`, I need to
 
 And I still have the problem that moving around the player leaves a trail again. Temporarily, I'll
 just fix this by remvoing all entities before I do the input handling.
+
+## Extending the entities
+
+Because I chose to have an `Entity` for _anything_ on the map, stuff like being a blocking or transparent
+tile is, of course, also defined in the `Entity` class, instead of directly on the `Tile` like in the 
+libtcod tutorial.
+
+So, an `Entity` can be `walkable` and `transparent`. To be fully honest here, just adding these two
+parameters as booleans isn't how I would usually approach this, because there are a lot of 
+different options to consider. For example, the player can't exist on the same tile as another `ACTOR`, but
+it's entirely possible to share a tile with some `ITEM`s, and `FURNITURE` might also be on the same tile,
+but a, let's say, barrel would block player movement, but some items might be ontop of it. Same with
+`TERRAIN` - a floor pretty much allows everything to be on the same tile, a wall usually doesn't share
+its place with anything else.
+
+For now, I will just continue like the tutorial suggests, but I know this is something I will have
+to change soon.
+```kotlin
+class Entity(
+    var position: Position3D,
+    val type: EntityType,
+    val tile: Tile,
+    val walkable: Boolean = true,
+    val transparent: Boolean = true
+)
+```
+As you can see, I completely skipped the `dark` part, for now. I will add this a bit differently later,
+when the FOV stuff is getting implemented.

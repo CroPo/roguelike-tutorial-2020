@@ -6,5 +6,7 @@ import org.hexworks.zircon.api.data.Tile
 class Entity(
     var position: Position3D,
     val type: EntityType,
-    val tile: Tile
+    val tile: Tile,
+    val walkable: Boolean = true,
+    val transparent: Boolean = true
 )
