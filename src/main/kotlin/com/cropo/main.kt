@@ -2,6 +2,7 @@ package com.cropo
 
 import com.cropo.action.EscapeAction
 import com.cropo.action.MovementAction
+import com.cropo.engine.Engine
 import com.cropo.entity.Entity
 import com.cropo.input.handleKeyboardEvent
 import org.hexworks.zircon.api.CP437TilesetResources
@@ -15,15 +16,21 @@ import org.hexworks.zircon.api.data.*
 import org.hexworks.zircon.api.grid.TileGrid
 import org.hexworks.zircon.api.uievent.KeyboardEventType
 import org.hexworks.zircon.api.uievent.Pass
+import org.hexworks.zircon.api.uievent.Processed
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
 
-    val player = Entity(Position3D.create(40, 25, 0),
-    '@', TileColor.defaultForegroundColor())
-    val npc = Entity(Position3D.create(20, 12, 0),
-        '@', TileColor.defaultForegroundColor())
+    val player = Entity(
+        Position3D.create(40, 25, 0),
+        '@', TileColor.defaultForegroundColor()
+    )
+    val npc = Entity(
+        Position3D.create(20, 12, 0),
+        '@', TileColor.defaultForegroundColor()
+    )
     val entities = listOf(player, npc)
+    val engine = Engine(entities, player)
 
     val grid: TileGrid = SwingApplications.startTileGrid(
         AppConfig.newBuilder()
@@ -40,6 +47,8 @@ fun main(args: Array<String>) {
         .withActualSize(Size3D.create(80, 50, 1))
         .build()
 
+    engine.render(gameArea)
+
     screen.addComponent(
         GameComponentBuilder.newBuilder<Tile, Block<Tile>>()
             .withGameArea(gameArea)
@@ -47,39 +56,9 @@ fun main(args: Array<String>) {
     )
 
     screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
-        when (val action = handleKeyboardEvent(event)) {
-            is EscapeAction -> exitProcess(0)
-            is MovementAction -> {
-                player.position = player.position.withRelativeX(action.dx).withRelativeY(action.dy)
-            }
-        }
-
-        for (x in 0..80) {
-            for (y in 0..50) {
-                gameArea.setBlockAt(Position3D.create(x, y, 0), Block.create(Tile.defaultTile()))
-            }
-        }
-
-        for (entity in entities) {
-            gameArea.setBlockAt(
-                entity.position,
-                Block.create(Tile.newBuilder()
-                    .withCharacter(entity.character)
-                    .withForegroundColor(entity.color)
-                    .build())
-            )
-        }
-        Pass
-    }
-
-    for (entity in entities) {
-        gameArea.setBlockAt(
-            entity.position,
-            Block.create(Tile.newBuilder()
-                .withCharacter(entity.character)
-                .withForegroundColor(entity.color)
-                .build())
-        )
+        engine.handleEvents(event)
+        engine.render(gameArea)
+        Processed
     }
 
     screen.display()
