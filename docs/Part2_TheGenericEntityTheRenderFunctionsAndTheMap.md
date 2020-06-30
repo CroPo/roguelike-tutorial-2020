@@ -311,3 +311,43 @@ object TileBlueprint {
  
 For now, these are the only generic entities and tiles I use. I'll expand this in the future 
 whenever something new needs to be added.
+
+## Bumping into walls
+
+All that entities are nice and stuff, but right now, A wall doesn't really stop me - nor do the 
+bounds of the game map. 
+
+In order to make this happen, I need to change the event handling a bit. First of all, it needs 
+the `GameArea` as parameter. Or, to be more specific, the `Engine` itself needs the `GameArea` to
+be a member, and since it's now a member, the `render` method doesn't need it as parameter anymore.
+
+```kotlin
+class Engine(
+    private val gameArea: GameArea<Tile, WorldBlock>,
+    private val entities: List<Entity>,
+    private val player: Entity
+) {
+// ...
+}
+```
+
+The actual check is not too much of effort, too, just a small change in the `handleEvents` method of 
+`Engine`
+
+```kotlin
+// ...
+is MovementAction -> {
+    val targetPosition  = player.position.withRelativeX(action.dx).withRelativeY(action.dy)
+
+    when {
+        targetPosition.x in 0 until gameArea.actualSize.xLength && targetPosition.y in 0 until gameArea.actualSize.yLength -> println("Can't move beyond the edge of the world")
+        entities.filter { it.position == targetPosition }.any { !it.walkable } -> println("Moved into a wall. BONK!")
+        else -> player.position = targetPosition
+    }
+}
+// ...
+```
+
+` targetPosition.x in 0 until gameArea.actualSize.xLength && targetPosition.y in 0 until gameArea.actualSize.yLength`
+is necessary, because the method `Size3D.containsPosition` doesn't check for negative values,
+which I need because I don't want anything to wander off the map.

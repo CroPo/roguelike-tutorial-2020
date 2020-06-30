@@ -20,7 +20,8 @@ import org.hexworks.zircon.api.uievent.Processed
 
 fun main(args: Array<String>) {
 
-    val screenSize = Size.create(80, 50);
+    val screenSize = Size.create(80, 50)
+    val mapSize = Size3D.create(80, 50, 1)
 
     val player = Entity(
         Position3D.create(screenSize.width / 2, screenSize.height / 2, 0),
@@ -31,9 +32,11 @@ fun main(args: Array<String>) {
             .withForegroundColor(TileColor.defaultForegroundColor())
             .build()
     )
-    val entities = listOf(player, EntityBlueprint.wallEntity(Position3D.create(15,15,0)), EntityBlueprint.floorEntity(
-        Position3D.create(15,16,0)))
-    val engine = Engine(entities, player)
+    val entities = listOf(
+        player,
+        EntityBlueprint.wallEntity(Position3D.create(15, 15, 0)),
+        EntityBlueprint.floorEntity(Position3D.create(15, 16, 0))
+    )
 
     val grid: TileGrid = SwingApplications.startTileGrid(
         AppConfig.newBuilder()
@@ -46,8 +49,8 @@ fun main(args: Array<String>) {
     val screen = ScreenBuilder.createScreenFor(grid)
 
     val gameArea = GameAreaBuilder.newBuilder<Tile, WorldBlock>()
-        .withVisibleSize(Size3D.create(screenSize.width, screenSize.height, 1))
-        .withActualSize(Size3D.create(screenSize.width, screenSize.height, 1))
+        .withVisibleSize(mapSize)
+        .withActualSize(mapSize)
         .build()
 
     // temporary - create all blocks in game area
@@ -57,7 +60,8 @@ fun main(args: Array<String>) {
         }
     }
 
-    engine.render(gameArea)
+    val engine = Engine(gameArea, entities, player)
+    engine.render()
 
     screen.addComponent(
         GameComponentBuilder.newBuilder<Tile, WorldBlock>()
@@ -72,7 +76,7 @@ fun main(args: Array<String>) {
         }
 
         engine.handleEvents(event)
-        engine.render(gameArea)
+        engine.render()
         Processed
     }
 
