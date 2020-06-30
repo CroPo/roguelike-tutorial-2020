@@ -351,3 +351,37 @@ is MovementAction -> {
 ` targetPosition.x in 0 until gameArea.actualSize.xLength && targetPosition.y in 0 until gameArea.actualSize.yLength`
 is necessary, because the method `Size3D.containsPosition` doesn't check for negative values,
 which I need because I don't want anything to wander off the map.
+
+## Making actions do something
+
+The last thing for this part is just moving around some code. The `Action` classes, which were
+pure data classes until now will be able to _actually_ do something now.
+
+The actions now look like this:
+
+```kotlin
+interface Action {
+    fun perform(engine: Engine, entity: Entity)
+}
+class EscapeAction : Action {
+    override fun perform(engine: Engine, entity: Entity) {
+        exitProcess(0)
+    }
+}
+class MovementAction(val dx: Int = 0, val dy: Int = 0) : Action {
+    override fun perform(engine: Engine, entity: Entity) {
+        val targetPosition  = entity.position.withRelativeX(dx).withRelativeY(dy)
+
+        when {
+            targetPosition.x !in 0 until engine.gameArea.actualSize.xLength || targetPosition.y !in 0 until engine.gameArea.actualSize.yLength -> println("Can't move beyond the edge of the world")
+            engine.entities.filter { it.position == targetPosition }.any { !it.walkable } -> println("Walked into a wall. BONK!")
+            else -> entity.position = targetPosition
+        }
+    }
+}
+class NoAction : Action {
+    override fun perform(engine: Engine, entity: Entity) {
+    }
+}
+```
+

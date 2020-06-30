@@ -1,6 +1,14 @@
 package com.cropo.action
 
+import com.cropo.engine.Engine
+import com.cropo.entity.Entity
+import kotlin.system.exitProcess
+
 /**
  * Perform any action associated with pressing the `ESC` key
  */
-class EscapeAction : Action
+class EscapeAction : Action {
+    override fun perform(engine: Engine, entity: Entity) {
+        exitProcess(0)
+    }
+}
