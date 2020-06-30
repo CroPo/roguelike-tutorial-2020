@@ -34,11 +34,11 @@ fun main(args: Array<String>) {
 
     val npc = Entity(
         Position3D.create(screenSize.width / 3, screenSize.height / 3, 0),
-        EntityType.FURNITURE,
+        EntityType.TERRAIN,
         Tile.newBuilder()
             .withCharacter('@')
-            .withBackgroundColor(TileColor.transparent())
-            .withForegroundColor(TileColor.create(200, 200, 0))
+            .withForegroundColor(TileColor.create(0, 200, 200))
+            .withBackgroundColor(TileColor.create(70, 0, 0))
             .build()
     )
     val entities = listOf(player, npc)
@@ -75,11 +75,6 @@ fun main(args: Array<String>) {
     )
 
     screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
-
-        // temporary removal of all entities to prevent trails
-        for (entity in entities) {
-            gameArea.fetchBlockAt(entity.position).get().removeEntity(entity)
-        }
 
         engine.handleEvents(event)
         engine.render(gameArea)

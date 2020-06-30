@@ -197,3 +197,41 @@ override var content: Tile
 ```
 
 With some small changes in both the `main.kt` and the `Engine` class, the code compiles again.
+
+Aaaaand... the screen goes black.
+Ok then, next try. I'll override the `tiles[CONTENT]` element. If there's nothing set in the other
+possible fields of `tiles`, the `emptyTile` will be used instead, so I think I only need to
+override this one.
+
+```kotlin
+override var tiles: PersistentMap<BlockTileType, Tile>
+    get() = persistentMapOf(
+        Pair(
+            BlockTileType.CONTENT, when {
+                entities.isEmpty() -> emptyTile
+                else -> entities.first().tile
+            }
+        )
+    )
+    set(value) {}
+```
+
+It compiles, and shows the characters again. The line `entities.isEmpty() -> emptyTile` is needed
+in case there is no entity set at all. Otherwise an exception might happen, and the screen stays black.
+
+Only one problem is remaining. I changed the second entity, the `npc` to the type `TERRAIN`, and set
+a background color 
+
+```kotlin
+val npc = Entity(
+    Position3D.create(screenSize.width / 3, screenSize.height / 3, 0),
+    EntityType.TERRAIN,
+    Tile.newBuilder()
+        .withCharacter('@')
+        .withForegroundColor(TileColor.create(0, 200, 200))
+        .withBackgroundColor(TileColor.create(70, 0, 0))
+        .build()
+)
+```
+
+But I already figured it out - instead of overriding `tiles[CONTENT]`, I need to override `tiles[TOP]`.

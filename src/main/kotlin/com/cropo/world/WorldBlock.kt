@@ -2,8 +2,10 @@ package com.cropo.world
 
 import com.cropo.entity.Entity
 import com.cropo.entity.EntityType
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import org.hexworks.zircon.api.data.Block
+import org.hexworks.zircon.api.data.BlockTileType
 import org.hexworks.zircon.api.data.Tile
 import org.hexworks.zircon.api.data.base.BaseBlock
 
@@ -19,11 +21,18 @@ class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
         get() =
             when {
                 entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
-                else -> Tile.empty()
+                else -> super.emptyTile
             }
 
-    override var content: Tile
-        get() = entities.first().tile
+    override var tiles: PersistentMap<BlockTileType, Tile>
+        get() = persistentMapOf(
+            Pair(
+                BlockTileType.TOP, when {
+                    entities.isEmpty() -> emptyTile
+                    else -> entities.first().tile
+                }
+            )
+        )
         set(value) {}
 
     fun addEntity(entity: Entity) {
