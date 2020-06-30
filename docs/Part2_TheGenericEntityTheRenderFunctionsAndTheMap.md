@@ -113,4 +113,43 @@ especially when I think of collision detection and FOV stuff.
 
 So I think I'll go with the _everything is an entity_ approach.
 
-  
+So, I'll start with a new implementation for `Block`. Naming stuff isn't really my strength, so I
+guess I'll just call it `WorldBlock`. The only thing I already know is that I will need a list of 
+entities there.
+
+This leads me to this class for a beginning
+
+```kotlin
+class WorldBlock(emptyTile: Tile = Tile.empty(), private val entities: MutableList<Entity> = mutableListOf()) :
+    BaseBlock<Tile>(emptyTile, persistentMapOf()) {
+
+   override fun createCopy(): Block<Tile> {
+       return WorldBlock(emptyTile)
+   }
+}
+```
+At this point I don't know if it's necessary, but the default block implementation which is provided by
+Zircon, `DefaultBlock`, has a `createCopy` method implementation, too, so I added a quick one here.
+
+With that code, I can have basically as many entities as I want to on a specific position. So I need a way
+to determine which tile I want to display. Basically, I will go for _actor -> item -> furniture -> terrain_, where
+item is everything which the player can put in the inventory, and furniture everything the player can't 
+put in the inventory (including corpses). 
+
+I need to update the `Entity` class for that purpose.
+
+```kotlin
+class Entity(
+    var position: Position3D,
+    val type: EntityType,
+    val tile: Tile
+)
+
+enum class EntityType {
+    ACTOR, ITEM, FURNITURE, TERRAIN
+}
+``` 
+
+I did not only add the `EntityType`, but instead of `character` and `tileColor`, an entity now also
+holds a `Tile`. Of course, this means changing every entity which is available in the code. But that
+is not too much of a problem, since there are only 2 of them so far.

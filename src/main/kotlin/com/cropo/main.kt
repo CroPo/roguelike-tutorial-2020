@@ -2,6 +2,7 @@ package com.cropo
 
 import com.cropo.engine.Engine
 import com.cropo.entity.Entity
+import com.cropo.entity.EntityType
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.SwingApplications
 import org.hexworks.zircon.api.application.AppConfig
@@ -21,12 +22,23 @@ fun main(args: Array<String>) {
     val screenSize = Size.create(80, 50);
 
     val player = Entity(
-        Position3D.create(screenSize.width/2, screenSize.height/2, 0),
-        '@', TileColor.defaultForegroundColor()
+        Position3D.create(screenSize.width / 2, screenSize.height / 2, 0),
+        EntityType.ACTOR,
+        Tile.newBuilder()
+            .withCharacter('@')
+            .withBackgroundColor(TileColor.transparent())
+            .withForegroundColor(TileColor.defaultForegroundColor())
+            .build()
     )
+
     val npc = Entity(
-        Position3D.create(screenSize.width/3, screenSize.height/3, 0),
-        '@', TileColor.defaultForegroundColor()
+        Position3D.create(screenSize.width / 3, screenSize.height / 3, 0),
+        EntityType.ACTOR,
+        Tile.newBuilder()
+            .withCharacter('@')
+            .withBackgroundColor(TileColor.transparent())
+            .withForegroundColor(TileColor.create(200, 200, 0))
+            .build()
     )
     val entities = listOf(player, npc)
     val engine = Engine(entities, player)

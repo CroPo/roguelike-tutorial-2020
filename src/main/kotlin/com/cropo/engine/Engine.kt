@@ -34,10 +34,7 @@ class Engine(private val entities: List<Entity>, private val player: Entity) {
             gameArea.setBlockAt(
                 entity.position,
                 Block.create(
-                    Tile.newBuilder()
-                        .withCharacter(entity.character)
-                        .withForegroundColor(entity.color)
-                        .build()
+                    entity.tile
                 )
             )
         }
