@@ -235,3 +235,6 @@ val npc = Entity(
 ```
 
 But I already figured it out - instead of overriding `tiles[CONTENT]`, I need to override `tiles[TOP]`.
+
+And I still have the problem that moving around the player leaves a trail again. Temporarily, I'll
+just fix this by remvoing all entities before I do the input handling.
