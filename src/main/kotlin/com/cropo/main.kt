@@ -5,6 +5,7 @@ import com.cropo.entity.Entity
 import com.cropo.entity.EntityBlueprint
 import com.cropo.entity.EntityType
 import com.cropo.tile.TileBlueprint
+import com.cropo.world.World
 import com.cropo.world.WorldBlock
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.SwingApplications
@@ -32,10 +33,9 @@ fun main(args: Array<String>) {
             .withForegroundColor(TileColor.defaultForegroundColor())
             .build()
     )
-    val entities = listOf(
-        player,
-        EntityBlueprint.wallEntity(Position3D.create(15, 15, 0)),
-        EntityBlueprint.floorEntity(Position3D.create(15, 16, 0))
+
+    val entities = mutableListOf(
+        player
     )
 
     val grid: TileGrid = SwingApplications.startTileGrid(
@@ -48,24 +48,14 @@ fun main(args: Array<String>) {
 
     val screen = ScreenBuilder.createScreenFor(grid)
 
-    val gameArea = GameAreaBuilder.newBuilder<Tile, WorldBlock>()
-        .withVisibleSize(mapSize)
-        .withActualSize(mapSize)
-        .build()
+    val world = World(mapSize, mapSize, entities, EntityBlueprint::wallEntity)
 
-    // temporary - create all blocks in game area
-    for(x in 0..screenSize.width) {
-        for(y in 0..screenSize.height) {
-            gameArea.setBlockAt(Position3D.create(x,y,0),WorldBlock())
-        }
-    }
-
-    val engine = Engine(gameArea, entities, player)
+    val engine = Engine(world, entities, player)
     engine.render()
 
     screen.addComponent(
         GameComponentBuilder.newBuilder<Tile, WorldBlock>()
-            .withGameArea(gameArea)
+            .withGameArea(world)
             .build()
     )
 
