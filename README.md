@@ -11,5 +11,6 @@ the `docs` directory:
 - [Part 0 - Setting up](docs/Part0_SettingUp.md)
 - [Part 1 - Drawing the ‘@’ symbol and moving it around](docs/Part1_DrawingThePlayerAndMovingAround.md)
 - [Part 2 - The generic Entity, the render functions, and the map](docs/Part2_TheGenericEntityTheRenderFunctionsAndTheMap.md)
+- [Part 3 - Generating a dungeon](docs/Part3_GeneratingADungeon.md)
 
 Again, feel free to comment every piece of code. The main purpose for my participation is to learn Kotlin, so anything helps.
