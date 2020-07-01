@@ -70,13 +70,7 @@ fun main(args: Array<String>) {
     )
 
     screen.handleKeyboardEvents(KeyboardEventType.KEY_PRESSED) { event, _ ->
-
-        for (entity in entities) {
-            gameArea.fetchBlockAt(entity.position).get().removeEntity(entity)
-        }
-
         engine.handleEvents(event)
-        engine.render()
         Processed
     }
 
