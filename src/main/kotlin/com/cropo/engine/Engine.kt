@@ -3,6 +3,7 @@ package com.cropo.engine
 import com.cropo.action.EscapeAction
 import com.cropo.action.MovementAction
 import com.cropo.entity.Entity
+import com.cropo.entity.EntityType
 import com.cropo.input.handleKeyboardEvent
 import com.cropo.world.WorldBlock
 import org.hexworks.zircon.api.data.Tile
@@ -17,12 +18,12 @@ class Engine(
 ) {
 
     fun handleEvents(event: KeyboardEvent) {
-        handleKeyboardEvent(event).perform(this,player)
+        handleKeyboardEvent(event).perform(this, player)
     }
 
     fun render() {
-        for (entity in entities) {
-            gameArea.fetchBlockAt(entity.position).get().addEntity(entity)
+        entities.filter { it.type == EntityType.ACTOR }.forEach {
+            gameArea.fetchBlockAt(it.position).get().addEntity(it)
         }
     }
 }
