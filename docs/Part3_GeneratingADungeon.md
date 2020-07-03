@@ -215,4 +215,109 @@ _Section_ and _area_ come to my mind - and I think I'll go with _section_ here (
 I renamed the `Layout` class to `Section` - because it already contains all the data I need, and I don't really think
 it's necessary to wrap it in another class just for the sake of it.
 
- 
+First, I create an interface which all other layout generation strategies should implement
+```kotlin
+interface SectionLayoutStrategy {
+    fun generateTerrain(bounds: Rect) : Map<Position, LayoutElement>
+}
+```
+Maybe I will add some more methods to this interface which control the placement of monsters, traps, items and so on,
+or I will create some other strategies for that, too.
+
+The strategy implementation for a rectangular room is not really what I would call complex
+```kotlin
+class RectangularRoomLayout : SectionLayoutStrategy{
+    override fun generateTerrain(bounds: Rect) : Map<Position, LayoutElement> {
+        val terrain = mutableMapOf<Position, LayoutElement>()
+        bounds.fetchPositions().forEach {
+            terrain[it] = LayoutElement.FLOOR
+        }
+        return terrain
+    }
+}
+```
+
+To use it, the `Section` got a second parameter where I can specify which layout strategy I want to use.
+This strategy gets called directly inside the `init` block, and is merged into the existing, pre-filled layout.
+
+For merging, I use this method
+```kotlin
+private fun mergeIntoLayout(data : Map<Position, LayoutElement>? ) {
+    data?.filter { entry -> entry.value != WALL }
+        ?.filter { entry -> bounds.containsPosition(entry.key) }
+        ?.forEach { (position, element) ->
+        internalLayout[position] = element
+    }
+}
+```
+
+And this little one is used to merge one section into another, which I need to add all the sections to the main level
+
+```kotlin
+fun merge(section: Section) {
+    mergeData(section.layout)
+}
+```
+
+I want to establish a few rules later on which `LayoutElement` can override which - and for now, `FLOOR` can 
+override a `WALL`, but not the other way round. I will have to think about how to implement that in a better way
+later.
+
+And finally, the `generateLevel` method needs a few changes, too:
+
+```kotlin
+fun generateLevel(): List<Entity> {
+
+    val level = Section(Rect.create(Position.topLeftCorner(), mapSize))
+    val rng = Random.Default
+
+    val sections : MutableList<Section> = mutableListOf()
+
+    for (i in 0 until 15) {
+        var bounds : Rect
+        do {
+            val size: Size = Size.create(rng.nextInt(7, 21), rng.nextInt(7, 21))
+            val position =
+                Position.create(rng.nextInt(1, mapSize.width - size.width - 1), rng.nextInt(1, mapSize.height - size.height - 1))
+            bounds = Rect.create(position, size)
+
+            val outerBounds = Rect.create(bounds.position.minus(Position.offset1x1()), bounds.size.plus(Size.create(2,2)))
+        } while (sections.any { it.bounds.intersects(outerBounds) })
+
+        val section = Section(bounds, RectangularRoomLayout())
+        sections.add(section)
+        level.merge(section)
+    }
+
+    val entities = mutableListOf<Entity>()
+
+    level.layout.forEach { (position: Position, element: LayoutElement) ->
+        entities.add(
+            when (element) {
+                FLOOR -> EntityBlueprint.floorEntity(position.to3DPosition(0))
+                WALL -> EntityBlueprint.wallEntity(position.to3DPosition(0))
+            }
+        )
+
+    }
+    return entities
+}
+``` 
+Right now, all minima and maxima are still hardcoded, but I'm going to change that soon.
+
+Most stuff here is done similar to what the tutorial suggests 
+
+```kotlin
+Position.create(rng.nextInt(1, mapSize.width - size.width - 1), rng.nextInt(1, mapSize.height - size.height - 1))
+```
+This line here makes sure the rooms aren't created out of bounds. By starting at 1, and reducing the highest possible
+number by a 1, either, I make sure that the game area is _always_ surrounded by a wall.
+
+```kotlin
+do {
+//...
+    val outerBounds = Rect.create(bounds.position.minus(Position.offset1x1()), bounds.size.plus(Size.create(2,2)))
+} while (sections.any { it.bounds.intersects(outerBounds) })
+```
+Similarly, by changing the desired bounds of the section by 1 in each direction, I make sure all rooms are 
+always separated by at least one wall.
