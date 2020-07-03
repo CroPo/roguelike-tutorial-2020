@@ -2,16 +2,14 @@ package com.cropo
 
 import com.cropo.engine.Engine
 import com.cropo.entity.Entity
-import com.cropo.entity.EntityBlueprint
 import com.cropo.entity.EntityType
-import com.cropo.tile.TileBlueprint
+import com.cropo.generator.DungeonGenerator
 import com.cropo.world.World
 import com.cropo.world.WorldBlock
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.SwingApplications
 import org.hexworks.zircon.api.application.AppConfig
 import org.hexworks.zircon.api.builder.component.GameComponentBuilder
-import org.hexworks.zircon.api.builder.game.GameAreaBuilder
 import org.hexworks.zircon.api.builder.screen.ScreenBuilder
 import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.*
@@ -48,7 +46,11 @@ fun main(args: Array<String>) {
 
     val screen = ScreenBuilder.createScreenFor(grid)
 
-    val world = World(mapSize, mapSize, entities, EntityBlueprint::wallEntity)
+    val world = World(mapSize, mapSize)
+
+    val dungeonGenerator = DungeonGenerator(mapSize.to2DSize())
+
+    entities.addAll(dungeonGenerator.generateLevel())
 
     val engine = Engine(world, entities, player)
     engine.render()

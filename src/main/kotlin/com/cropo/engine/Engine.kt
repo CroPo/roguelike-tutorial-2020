@@ -22,7 +22,7 @@ class Engine(
     }
 
     fun render() {
-        entities.filter { it.type == EntityType.ACTOR }.forEach {
+        entities.forEach {
             gameArea.fetchBlockAt(it.position).get().addEntity(it)
         }
     }
