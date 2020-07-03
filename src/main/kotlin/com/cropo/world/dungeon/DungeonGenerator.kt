@@ -10,12 +10,15 @@ import org.hexworks.zircon.api.data.Size
 
 class DungeonGenerator(private val mapSize: Size) {
 
-    private var levelLayout = Layout(Rect.create(Position.topLeftCorner(), mapSize))
+    private var level = Section(Rect.create(Position.topLeftCorner(), mapSize))
 
     fun generateLevel(): List<Entity> {
+
+
+
         val room = mutableListOf<Entity>()
 
-        levelLayout.terrain.forEach { (position: Position, element: LayoutElement) ->
+        level.layout.forEach { (position: Position, element: LayoutElement) ->
             room.add(
                 when (element) {
                     FLOOR -> EntityBlueprint.floorEntity(position.to3DPosition(0))

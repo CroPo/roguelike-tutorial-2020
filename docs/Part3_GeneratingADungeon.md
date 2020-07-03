@@ -206,3 +206,13 @@ class DungeonGenerator(private val mapSize: Size) {
 }
 ```
 
+Now that the basic work for the dungeon generation is done, I can start implementing a way to generate multiple
+rooms - be it simple rectangular ones as the tutorial suggest, or more complex ones using cellular automata 
+for example. And because at least the latter doesn't really generate a single room all the time, but more like
+a connected system of rooms already, I will have to find a better name than `Room`.
+
+_Section_ and _area_ come to my mind - and I think I'll go with _section_ here (I really don't like naming stuff).
+I renamed the `Layout` class to `Section` - because it already contains all the data I need, and I don't really think
+it's necessary to wrap it in another class just for the sake of it.
+
+ 
