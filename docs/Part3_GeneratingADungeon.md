@@ -130,4 +130,79 @@ But the one thing I don't like too much about this piece of code is that Entitie
 right from the start, and, depending on the underlying algorithm, will be deleted and recreated 
 again and again - and the same happens when connecting multiple rooms with corridors.
 
+## A proper dungeon generator
+
+What do I need to build a proper level generator? Well, first of all, an idea on how to do it. This is now my third or
+even fourth try to come up with something not absolutely stupid.
+
+The generator should only come up with a layout for a level, not a complete set of entities. Entities are something,
+well, more or less final. The layout should only contain a quick view of where is a wall, where is a floor, and so
+on, which are easy to modify. Entities are also a bit too dynamic in their structure - for some checks and
+compares during level generation I need to be sure about what I have.
+
+By this, a list of booleans would basically be fine - where `true` is a wall and `false` is a floor. 
+
+But I might want to add other features at that stage. Like the stairs to other dungeon levels, maybe doors, traps,
+secret doors, and so on. So I don't want to restrict myself to just a boolean list. So I think I will go on by creating
+a `enum class` for all elements I want to be able to generate.
+
+```kotlin
+enum class LayoutElement {
+    FLOOR, WALL
+}
+```
+
+Right now, only two elements are supported - but this will change rapidly.
+
+The layout itself first of all needs a list of elements, and its bounds. It also should be possible to _merge_ other
+layouts into another layout - this is needed when I generate all the smaller rooms and then put them into the bigger
+dungeon map, for example. It could also be used to load all kind of prefab rooms, and so on.
+
+```kotlin
+class Layout(
+    private val bounds: Rect
+) {
+    private val internalTerrain: MutableMap<Position, LayoutElement> = HashMap()
+
+    val terrain : Map<Position, LayoutElement>
+    get() = internalTerrain
+
+    init {
+        bounds.fetchPositions().forEach {
+            internalTerrain[it] = LayoutElement.WALL
+        }
+    }
+}
+```
+
+On creation of a `Layout` object, the map containing will be initialized with all coordinates in the given
+bounds, each set to a `LayoutElement.WALL`. The coordinates in a `Rect` are all automatically calculated with
+the offset in mind, so to merge two layouts, I just have to override one map with the other.
+
+To access the terrain from outside I made a special getter which only allows read access. Modification should
+only be available through the API of `Layout`.
+
+With the `DungeonGenerator` modified, I can now generate a full level of walls, again!
+
+```kotlin
+class DungeonGenerator(private val mapSize: Size) {
+    
+    private var levelLayout = Layout(Rect.create(Position.topLeftCorner(), mapSize))
+    
+    fun generateLevel(): List<Entity> {
+        val room = mutableListOf<Entity>()
+
+        levelLayout.terrain.forEach { (position: Position, element: LayoutElement) ->
+            room.add(
+                when (element) {
+                    FLOOR -> EntityBlueprint.floorEntity(position.to3DPosition(0))
+                    WALL -> EntityBlueprint.wallEntity(position.to3DPosition(0))
+                }
+            )
+
+        }
+        return room
+    }
+}
+```
 

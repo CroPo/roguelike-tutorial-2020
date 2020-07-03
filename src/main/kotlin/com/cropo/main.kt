@@ -3,9 +3,10 @@ package com.cropo
 import com.cropo.engine.Engine
 import com.cropo.entity.Entity
 import com.cropo.entity.EntityType
-import com.cropo.generator.DungeonGenerator
+import com.cropo.world.dungeon.DungeonGenerator
 import com.cropo.world.World
 import com.cropo.world.WorldBlock
+
 import org.hexworks.zircon.api.CP437TilesetResources
 import org.hexworks.zircon.api.SwingApplications
 import org.hexworks.zircon.api.application.AppConfig
