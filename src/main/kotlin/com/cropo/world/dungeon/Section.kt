@@ -11,8 +11,7 @@ import org.hexworks.zircon.api.data.Rect
  * containing and managing the layout of this section
  */
 class Section(
-    val bounds: Rect,
-    private val layoutStrategy: SectionLayoutStrategy = NoLayout()
+    val bounds: Rect
 ) {
     private val internalLayout: MutableMap<Position, LayoutElement> = HashMap()
 
@@ -26,7 +25,21 @@ class Section(
         bounds.fetchPositions().forEach {
             internalLayout[it] = WALL
         }
-        mergeData(layoutStrategy.generateTerrain(bounds))
+    }
+
+    /**
+     * Procedurally generate the layout for this [Section] section
+     * with the given [SectionLayoutStrategy]
+     */
+    fun generateLayoutWith(strategy: SectionLayoutStrategy) {
+        mergeData(strategy.generateTerrain(bounds))
+    }
+
+    /**
+     * Merge another [Section] into this one
+     */
+    fun merge(section: Section) {
+        mergeData(section.layout)
     }
 
     /**
@@ -40,13 +53,6 @@ class Section(
             .forEach { (position, element) ->
                 internalLayout[position] = element
             }
-    }
-
-    /**
-     * Merge another section into this section
-     */
-    fun merge(section: Section) {
-        mergeData(section.layout)
     }
 
 }

@@ -17,22 +17,32 @@ class DungeonGenerator(private val mapSize: Size) {
         val level = Section(Rect.create(Position.topLeftCorner(), mapSize))
         val rng = Random.Default
 
-        val sections : MutableList<Section> = mutableListOf()
+        val rooms: MutableList<Section> = mutableListOf()
 
-        for (i in 0 until 15) {
-            var bounds : Rect
+        val roomSizeMin = 6
+        val roomSizeMax = 10
+        val maxRooms = 30
+
+        for (i in 0 until maxRooms) {
+            var bounds: Rect
             do {
-                val size: Size = Size.create(rng.nextInt(7, 21), rng.nextInt(7, 21))
+                val size: Size =
+                    Size.create(rng.nextInt(roomSizeMin, roomSizeMax), rng.nextInt(roomSizeMin, roomSizeMax))
                 val position =
-                    Position.create(rng.nextInt(1, mapSize.width - size.width - 1), rng.nextInt(1, mapSize.height - size.height - 1))
+                    Position.create(
+                        rng.nextInt(1, mapSize.width - size.width - 1),
+                        rng.nextInt(1, mapSize.height - size.height - 1)
+                    )
                 bounds = Rect.create(position, size)
                 // Expand the bounds by 1 in each direction - to make sure there's always a wall between
                 // the individual rectangular rooms
-                val outerBounds = Rect.create(bounds.position.minus(Position.offset1x1()), bounds.size.plus(Size.create(2,2)))
-            } while (sections.any { it.bounds.intersects(outerBounds) })
+                val outerBounds =
+                    Rect.create(bounds.position.minus(Position.offset1x1()), bounds.size.plus(Size.create(2, 2)))
+            } while (rooms.any { it.bounds.intersects(outerBounds) })
 
-            val section = Section(bounds, RectangularRoomLayout())
-            sections.add(section)
+            val section = Section(bounds)
+            section.generateLayoutWith(RectangularRoomLayout())
+            rooms.add(section)
             level.merge(section)
         }
 
