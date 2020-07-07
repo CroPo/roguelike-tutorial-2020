@@ -68,7 +68,7 @@ I did a bit of digging around in the zircon library, and I found their implement
 algorithms, which is just what I need for the calculation.
 
 First, I will need to create a circle containing all possible visible positions. Right now, the vision range of
-the player is a diameter of 11 units.
+the player is a radius of 11 units.
 ```kotlin
 val fovCircle = EllipseFactory.buildEllipse(
     EllipseParameters(entity.position.to2DPosition(), Size.create(11,11)))
@@ -169,4 +169,35 @@ fun render() {
 ```  
 
 Finally, one problem is left to address: The _invisible_ artifacts within the field of view. This is caused by the line 
-casting in the FOV calculation - not every available position is hit by a line, so no calculation is done, either.
+casting in the FOV calculation - not every available position is hit by a line, so no fov check is done, either.
+
+![FOV Bug](image/fov_bug.png)
+
+With the FOV check turned off, the artifacts get more visible. 
+
+The solution might be a bit quirky, but at least this seems to work:
+```kotlin
+EllipseFactory.buildEllipse(
+    fromPosition = center,
+    toPosition = center.withRelative(Position.create(radius, radius))
+).positions.plus(
+    EllipseFactory.buildEllipse(
+        fromPosition = center,
+        toPosition = center.withRelative(Position.create(radius - 1, radius - 1))
+    ).positions
+).forEach { fovPosition ->
+    for (linePosition in LineFactory.buildLine(center, fovPosition).positions) {
+        visiblePositions.add(linePosition.to3DPosition(0))
+        if (engine.entities.filter { it.position.to2DPosition() == linePosition }
+                .any { !it.isTransparent }) {
+            break
+        }
+    }
+}
+```
+To force more lines to be cast, I add another set of positions for the check, which I get by creating a second
+circle with a reduced radius. The downside is - the FOV check now takes considerably longer.
+
+## Remember already explored tiles
+
+To conclude this part of the tutorial 
