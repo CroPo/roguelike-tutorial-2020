@@ -232,3 +232,9 @@ To display all tiles which were previously explored, a small modification to the
 
 This operator `?:` is called the _elvis operator_. Basically, `exploredEmptyTile ?: super.emptyTile` is short for
 `if(exploredEmptyTile == null) { exploredEmptyTile } else { super.emptyTile }`
+
+To display the already explored, but not visible tiles, the attribute `tileHidden` of the `Entity` class 
+(which I renamed to `tileExplored`) comes into play. 
+
+Not much to add here - I added the two new tiles to the `TileBlueprint` object, and added them in the `EntityBlueprint`
+to the corresponding entities. I also made the walls tiles a bit darker in general.

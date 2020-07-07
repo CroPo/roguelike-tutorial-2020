@@ -20,7 +20,7 @@ class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
     var isVisible = false
 
     private val exploredEmptyTile: Tile?
-        get() = entities.firstOrNull { it.isExplored && it.type == EntityType.TERRAIN }?.tile
+        get() = entities.firstOrNull { it.isExplored && it.type == EntityType.TERRAIN }?.tileExplored
 
     override val emptyTile: Tile
         get() =
