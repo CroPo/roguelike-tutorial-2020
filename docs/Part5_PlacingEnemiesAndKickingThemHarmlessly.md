@@ -269,3 +269,32 @@ fun removeEntity(entity: UUID) {
 ```
 
 The one thing I added is the initial check if an entity has a `GridTile` component.
+
+To this point, I still have no way of testing the changes I made, and there is still a lot to change, 
+so I will continue with `Action` and all of its descendants.
+
+`ApplyFovAction` was the first one I changed:
+```kotlin
+override fun perform(engine: Engine, entityId: UUID) {
+    if (!engine.entityEngine.has(entityId, FieldOfView::class) ||
+        !engine.entityEngine.has(entityId, GridPosition::class)
+    ) {
+        return
+    }
+
+    val entityPosition = engine.entityEngine.get(entityId, GridPosition::class)!!.position3D
+
+    world.updateFov(engine.entityEngine.get(entityId, FieldOfView::class)!!.visible)
+    engine.entityEngine.get(GridAttributes::class).filter { (entityId, _) ->
+        engine.entityEngine.has(entityId, GridPosition::class) &&
+                engine.entityEngine.get(entityId, GridPosition::class)!!.position3D == entityPosition
+    }.forEach{
+        (_, gridAttributes) ->
+        gridAttributes.isExplored = true
+    }
+}
+```
+
+Still not very confident about the `entityEngine.get(GridAttributes::class)`. It might just not work as intended,
+but then I will find a different solution - and if I have to typecast every single entry I will do.
+

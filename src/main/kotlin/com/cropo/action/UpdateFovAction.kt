@@ -1,6 +1,7 @@
 package com.cropo.action
 
 import com.cropo.engine.Engine
+import org.hexworks.cobalt.core.api.UUID
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Position3D
 import org.hexworks.zircon.api.shape.EllipseFactory
@@ -10,7 +11,7 @@ import org.hexworks.zircon.api.shape.LineFactory
  * Update the FOV of an [Entity]
  */
 class UpdateFovAction : Action {
-    override fun perform(engine: Engine, entity: Entity) {
+    override fun perform(engine: Engine, entity: UUID) {
         if (entity.fieldOfVision == null) {
             return
         }

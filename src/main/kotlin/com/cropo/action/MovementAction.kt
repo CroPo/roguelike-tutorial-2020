@@ -1,12 +1,13 @@
 package com.cropo.action
 
 import com.cropo.engine.Engine
+import org.hexworks.cobalt.core.api.UUID
 
 /**
  * Move an entity to a specified position
  */
 class MovementAction(val dx: Int = 0, val dy: Int = 0) : Action {
-    override fun perform(engine: Engine, entity: Entity) {
+    override fun perform(engine: Engine, entity: UUID) {
         val targetPosition = entity.position.withRelativeX(dx).withRelativeY(dy)
 
         when {
