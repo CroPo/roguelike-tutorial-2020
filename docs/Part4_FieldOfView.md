@@ -131,3 +131,42 @@ override var tiles: PersistentMap<BlockTileType, Tile>
     )
 ```
 So, right now, only tiles which are inside the fov are shown - the `explored` part is completely ignored for now.
+
+## Bugfixing
+
+Technically, the FOV works. Practically, there are still some issues. First of all, walls are not shown correctly.
+The fix for this problem isn't that much of an issue, just a redesign of the `UpdateFovAction`.
+
+```kotlin
+val visiblePositions: MutableList<Position3D> = mutableListOf()
+fovCircle.positions.forEach { fovPosition ->
+    for (linePosition in LineFactory.buildLine(center, fovPosition).positions) {
+        visiblePositions.add(linePosition.to3DPosition(0))
+        if (engine.entities.filter { it.position.to2DPosition() == linePosition }
+                .any { !it.isTransparent }) {
+            break
+        }
+    }
+}
+```
+
+Now, I add the `visiblePosition` before the check for transparency - which means the first view-blocking tile will still
+be added. Also, I dropped the part where I skip positions which are already inised the `visiblePosition` list. If I
+skip any already visible position, the next available position would be added before a check for the visibility is done.
+
+Secondly, I want to generate a FOV right after dungeon creation - right now the screen is black initially, before the
+first input is being performed. For now, I will add both actions to the `render` method of the `Engine`- which is called 
+to initially render all entities to the game area.
+
+```kotlin
+fun render() {
+    entities.forEach {
+        gameArea.fetchBlockAt(it.position).get().addEntity(it)
+    }
+    UpdateFovAction().perform(this, player)
+    ApplyFovAction(gameArea).perform(this, player)
+}
+```  
+
+Finally, one problem is left to address: The _invisible_ artifacts within the field of view. This is caused by the line 
+casting in the FOV calculation - not every available position is hit by a line, so no calculation is done, either.

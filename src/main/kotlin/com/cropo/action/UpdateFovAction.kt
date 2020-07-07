@@ -2,7 +2,6 @@ package com.cropo.action
 
 import com.cropo.engine.Engine
 import com.cropo.entity.Entity
-import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Position3D
 import org.hexworks.zircon.api.data.Size
 import org.hexworks.zircon.api.shape.EllipseFactory
@@ -26,13 +25,13 @@ class UpdateFovAction : Action {
 
         val visiblePositions: MutableList<Position3D> = mutableListOf()
         fovCircle.positions.forEach { fovPosition ->
-            LineFactory.buildLine(center, fovPosition).positions
-                .filterNot { visiblePositions.contains(it.to3DPosition(0)) }
-                .takeWhile { linePosition ->
-                    !engine.entities.filter { it.position.to2DPosition() == linePosition }
-                        .any { !it.isTransparent }
+            for (linePosition in LineFactory.buildLine(center, fovPosition).positions) {
+                visiblePositions.add(linePosition.to3DPosition(0))
+                if (engine.entities.filter { it.position.to2DPosition() == linePosition }
+                        .any { !it.isTransparent }) {
+                    break
                 }
-                .forEach { visiblePositions.add(it.to3DPosition(0)) }
+            }
         }
 
         entity.fieldOfVision.clear()

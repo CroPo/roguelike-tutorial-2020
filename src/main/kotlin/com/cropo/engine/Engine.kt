@@ -30,5 +30,7 @@ class Engine(
         entities.forEach {
             gameArea.fetchBlockAt(it.position).get().addEntity(it)
         }
+        UpdateFovAction().perform(this, player)
+        ApplyFovAction(gameArea).perform(this, player)
     }
 }
