@@ -53,12 +53,12 @@ fun main(args: Array<String>) {
 
     val screen = ScreenBuilder.createScreenFor(grid)
 
-    val world = World(mapSize, mapSize)
+    val world = World(mapSize, mapSize, entityEngine)
 
     val dungeonGenerator = DungeonGenerator(mapSize.to2DSize())
     dungeonGenerator.generateLevel(player)
 
-    val engine = Engine(world, entities, player)
+    val engine = Engine(world, entityEngine, player)
     engine.render()
 
     screen.addComponent(

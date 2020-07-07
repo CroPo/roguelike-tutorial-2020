@@ -148,4 +148,124 @@ fun <T : Component> get(componentClass: KClass<T>) : Map<UUID, T> {
 }
 ```
 
-There is still a lot left to fix, the game is far from being able to run or compile. 
+There is still a lot left to fix, the game is far from being able to run or compile, and the class which will be
+the biggest challenge to fix is `WorldBlock` - there is a lot of interaction with the entities, which is all broken
+right now.
+
+In the first step of fixing this, I have to pass a reference of `EntityEngine` all the way down from `main.kt` over
+`World` to the `WorldBlock`. After that, I will change all affected properties and methods one by one, 
+and the first change needs to be done here:
+```kotlin
+private val exploredEmptyTile: Tile?
+    get() = entities.firstOrNull { it.isExplored && it.type == EntityType.TERRAIN }?.tileExplored
+```
+
+I changed it to this:
+
+```kotlin
+private val exploredEmptyTile: Tile?
+    get() =
+        entities.filter {
+            entityEngine.get(it, GridTile::class)!!.layer == TileLayer.TERRAIN
+        }.map {
+            entityEngine.get(it, GridTile::class)!!.tileHidden
+        }.firstOrNull()
+```
+For all entities which are positioned on this block, I check if they are set to the `TERRAIN` layer, and then
+I simply pick the `tileHidden` of the first available entity. 
+
+I _really_ hope there are enough `null` checks here. I was told kotlin is very safe regarding this, 
+but as a professional Java developer, the fear of a `NullPointerException` haunts me day and night.
+
+Onto the next property which needs a change:
+
+```kotlin
+override val emptyTile: Tile
+    get() =
+        when {
+            !isVisible -> exploredEmptyTile ?: super.emptyTile
+            entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
+            else -> super.emptyTile
+        }
+```
+
+I turned it to this:
+```kotlin
+override val emptyTile: Tile
+    get() =
+        when {
+            !isVisible -> exploredEmptyTile ?: super.emptyTile
+            terrainLayerEntities.isNotEmpty() -> terrainLayerEntities.map {
+                entityEngine.get(it, GridTile::class)!!.tileVisible
+            }.first()
+            else -> super.emptyTile
+        }
+```
+
+Because access to all entities on the `TERRAIN` layer is used three times in total, I made a property out of it, too:
+
+```kotlin
+private val terrainLayerEntities: List<UUID>
+    get() = entities.filter {
+        entityEngine.has(it, GridTile::class)
+                && entityEngine.get(it, GridTile::class)!!.layer == TileLayer.TERRAIN
+    }
+``` 
+
+Of course, I did change `exploredEmptyTile` to use `terrainLayerEntities`, too
+
+And the next one: 
+
+```kotlin
+override var tiles: PersistentMap<BlockTileType, Tile>
+    get() = persistentMapOf(
+        Pair(
+            BlockTileType.TOP, when {
+                !isVisible -> emptyTile
+                entities.isEmpty() -> emptyTile
+                else -> entities.first().tile
+            }
+        )
+    )
+    set(value) {}
+```
+
+Not too much of a change, here. I really hope this works as expected, and `filter` doesn't mess up the sorted list.
+
+```kotlin
+override var tiles: PersistentMap<BlockTileType, Tile>
+    get() = persistentMapOf(
+        Pair(
+            BlockTileType.TOP, when {
+                !isVisible || entities.isEmpty() -> emptyTile
+                else -> entities.filter {
+                    entityEngine.has(it, GridTile::class)
+                }.map {
+                    entityEngine.get(it, GridTile::class)!!.tileVisible
+                }.first()
+            }
+        )
+    )
+    set(value) {}
+```
+
+Two more methods are still missing a change - `addEntity` and `removeEntity`. Because the change is pretty small
+this time, I will just post the changed methods
+
+```kotlin
+fun addEntity(entity: UUID) {
+    if(!entityEngine.has(entity, GridTile::class)) {
+        return
+    }
+    entities.add(entity)
+    entities.sortBy {
+        entityEngine.get(it, GridTile::class)?.layer
+    }
+}
+
+fun removeEntity(entity: UUID) {
+    entities.remove(entity)
+}
+```
+
+The one thing I added is the initial check if an entity has a `GridTile` component.

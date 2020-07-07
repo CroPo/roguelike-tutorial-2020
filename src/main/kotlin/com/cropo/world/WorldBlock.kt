@@ -1,6 +1,8 @@
 package com.cropo.world
 
+import com.cropo.entity.EntityEngine
 import com.cropo.entity.component.GridTile
+import com.cropo.tile.TileLayer
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import org.hexworks.cobalt.core.api.UUID
@@ -14,19 +16,33 @@ import org.hexworks.zircon.api.data.base.BaseBlock
  * which tile is displayed on which position.
  */
 
-class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
+class WorldBlock(private val entityEngine: EntityEngine) :
     BaseBlock<Tile>(Tile.empty(), persistentMapOf()) {
+
+    private val entities: MutableList<UUID> = mutableListOf()
 
     var isVisible = false
 
+    private val terrainLayerEntities: List<UUID>
+        get() = entities.filter {
+            entityEngine.has(it, GridTile::class)
+                    && entityEngine.get(it, GridTile::class)!!.layer == TileLayer.TERRAIN
+        }
+
     private val exploredEmptyTile: Tile?
-        get() = entities.firstOrNull { it.isExplored && it.type == EntityType.TERRAIN }?.tileExplored
+        get() =
+            terrainLayerEntities.map {
+                entityEngine.get(it, GridTile::class)!!.tileHidden
+            }.firstOrNull()
+
 
     override val emptyTile: Tile
         get() =
             when {
                 !isVisible -> exploredEmptyTile ?: super.emptyTile
-                entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
+                terrainLayerEntities.isNotEmpty() -> terrainLayerEntities.map {
+                    entityEngine.get(it, GridTile::class)!!.tileVisible
+                }.first()
                 else -> super.emptyTile
             }
 
@@ -34,28 +50,32 @@ class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
         get() = persistentMapOf(
             Pair(
                 BlockTileType.TOP, when {
-                    !isVisible -> emptyTile
-                    entities.isEmpty() -> emptyTile
-                    else -> entities.first().tile
+                    !isVisible || entities.isEmpty() -> emptyTile
+                    else -> entities.filter {
+                        entityEngine.has(it, GridTile::class)
+                    }.map {
+                        entityEngine.get(it, GridTile::class)!!.tileVisible
+                    }.first()
                 }
             )
         )
         set(value) {}
 
     fun addEntity(entity: UUID) {
-        if(!entity.components.any { it is GridTile }) {
+        if(!entityEngine.has(entity, GridTile::class)) {
             return
         }
-
         entities.add(entity)
-        entities.sortBy { it.type }
+        entities.sortBy {
+            entityEngine.get(it, GridTile::class)?.layer
+        }
     }
 
-    fun removeEntity(entity: Entity) {
+    fun removeEntity(entity: UUID) {
         entities.remove(entity)
     }
 
     override fun createCopy(): Block<Tile> {
-        return WorldBlock()
+        return WorldBlock(entityEngine)
     }
 }
