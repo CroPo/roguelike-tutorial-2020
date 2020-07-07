@@ -430,3 +430,14 @@ fun generateLevel(player: Entity): List<Entity> {
 player.position = rooms.first().bounds.center.to3DPosition(0)
 ```
 
+
+## Conclusion
+
+I felt the need to write a bit of a conclusion to this part.
+
+First of all, I'm happy with how the `Section` class turned out. I really think this can be expanded much further.
+Also, with how the `LShapedCorridorLayout` is designed, I can add corridors with much more corners rather easy, by
+just getting some points in an area randomly and connecting those with a corridor - for example.
+
+And I finally got my confidence back to continue with this tutorial. Yesterday, after about 5 hours of failing around
+with the corridors, I really was close to deleting the project.
