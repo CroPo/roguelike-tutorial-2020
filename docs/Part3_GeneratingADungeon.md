@@ -321,3 +321,94 @@ do {
 ```
 Similarly, by changing the desired bounds of the section by 1 in each direction, I make sure all rooms are 
 always separated by at least one wall.
+
+## Connecting the rooms
+
+The tutorial creates corridors with one horizontal and one vertical line, both created using the Bresenham 
+algorithm.
+
+I will do my implementation pretty similar to that, without using Bresenham for creating the lines - because
+I only have straight lines anyways.
+
+First of all, I expanded the `Rect` interface's companion object with a new `create` method that takes two
+`Positions`. It calculates then the top left position and the size, and creates a `Rect` object.
+
+```kotlin
+fun Rect.Companion.create(from: Position, to: Position): Rect {
+
+    val (left, right) = if (from.x > to.x) {
+        Pair(to.x, from.x + 1)
+    } else {
+        Pair(from.x, to.x + 1)
+    }
+
+    val (top, bottom) = if (from.y > to.y) {
+        Pair(to.y, from.y + 1)
+    } else {
+        Pair(from.y, to.y + 1)
+    }
+
+    val topLeft = Position.create(left, top)
+    val bottomRight = Position.create(right, bottom)
+
+    return DefaultRect(topLeft, bottomRight.minus(topLeft).toSize())
+}
+```
+I need to add `1` to the bottom and right coordinate, otherwise these won't be included in the `Rect`.
+
+The next thing I need is a new `SectionLayoutStrategy`. One which creates the L-shaped corridor from the first to
+the second room's center. It also needs to calculate the corner position - depending on a random boolean. Said boolean
+determines if the first line is horizontal or vertical. I then create a simple `Rect` from one to the other coordinate,
+which _should_ be either 1 unit wide or high (depending on if horizontal or vertical), and fill each `Position` in the
+rectangle with a `FLOOR`. 
+
+```kotlin
+class LShapedCorridorLayout(
+    private val rng: Random,
+    private val from: Position,
+    private val to: Position
+) : SectionLayoutStrategy {
+    override fun generateTerrain(bounds: Rect): Map<Position, LayoutElement> {
+        val terrain = mutableMapOf<Position, LayoutElement>()
+
+        val corner = if (rng.nextBoolean()) {
+            Position.create(from.x, to.y)
+        } else {
+            Position.create(to.x, from.y)
+        }
+
+        terrain.putAll(generateCorridorPart(from, corner))
+        terrain.putAll(generateCorridorPart(corner, to))
+
+        return terrain
+    }
+
+    private fun generateCorridorPart(
+        from: Position, to: Position
+    ): Map<Position, LayoutElement> {
+        val corridor = mutableMapOf<Position, LayoutElement>()
+
+        Rect.create(from, to).fetchPositions().forEach {
+            corridor[it] = FLOOR
+        }
+        return corridor
+    }
+}
+```
+
+And this is the code added to the dungeon generator, right after the loop which creates the rooms.
+
+```kotlin
+for (i in 1 until rooms.size) {
+    val from = rooms[i].bounds.center
+    val to = rooms[i - 1].bounds.center
+    val corridor = Section(Rect.create(from, to))
+    corridor.generateLayoutWith(LShapedCorridorLayout(rng, from, to))
+    level.merge(corridor)
+}
+```
+
+I can't tell you how happy I am that I finally reached this point. I worked multiple hours on multiple days to find a
+fitting solution here, but I kind of hit a mental road block, and really had problems figuring this rather easy stuff
+out.
+

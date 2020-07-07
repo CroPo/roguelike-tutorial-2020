@@ -1,5 +1,6 @@
 package com.cropo.world.dungeon
 
+import ch.qos.logback.core.joran.spi.EventPlayer
 import com.cropo.entity.Entity
 import com.cropo.entity.EntityBlueprint
 import com.cropo.world.dungeon.LayoutElement.*
@@ -8,6 +9,8 @@ import com.cropo.world.dungeon.layout.RectangularRoomLayout
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Rect
 import org.hexworks.zircon.api.data.Size
+import com.cropo.extension.create
+import com.cropo.world.dungeon.layout.LShapedCorridorLayout
 import kotlin.random.Random
 
 class DungeonGenerator(private val mapSize: Size) {
@@ -27,7 +30,7 @@ class DungeonGenerator(private val mapSize: Size) {
             var bounds: Rect
             do {
                 val size: Size =
-                    Size.create(rng.nextInt(roomSizeMin, roomSizeMax), rng.nextInt(roomSizeMin, roomSizeMax))
+                    Size.create(rng.nextInt(roomSizeMin, roomSizeMax + 1), rng.nextInt(roomSizeMin, roomSizeMax + 1))
                 val position =
                     Position.create(
                         rng.nextInt(1, mapSize.width - size.width - 1),
@@ -44,6 +47,14 @@ class DungeonGenerator(private val mapSize: Size) {
             section.generateLayoutWith(RectangularRoomLayout())
             rooms.add(section)
             level.merge(section)
+        }
+
+        for (i in 1 until rooms.size) {
+            val from = rooms[i].bounds.center
+            val to = rooms[i - 1].bounds.center
+            val corridor = Section(Rect.create(from, to))
+            corridor.generateLayoutWith(LShapedCorridorLayout(rng, from, to))
+            level.merge(corridor)
         }
 
         val entities = mutableListOf<Entity>()
