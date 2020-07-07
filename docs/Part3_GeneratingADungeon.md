@@ -410,5 +410,23 @@ for (i in 1 until rooms.size) {
 
 I can't tell you how happy I am that I finally reached this point. I worked multiple hours on multiple days to find a
 fitting solution here, but I kind of hit a mental road block, and really had problems figuring this rather easy stuff
-out.
+out, to the point where I really lost all confidence in my skills.
+
+## Setting the player's starting point
+
+To conclude this part of the tutorial, the player's starting position needs to be set to a position where they are able
+to move around - so, in best case it's the center of the room. In the worst case, right onto a wall.
+
+First, the `player` entity needs to be available in the dungeon generator.
+
+```kotlin
+fun generateLevel(player: Entity): List<Entity> {
+// all the code
+}
+```
+
+... and with this, I put the player right into the center of the first generated room:
+```kotlin
+player.position = rooms.first().bounds.center.to3DPosition(0)
+```
 

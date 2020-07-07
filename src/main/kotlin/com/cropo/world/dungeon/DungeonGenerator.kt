@@ -15,7 +15,7 @@ import kotlin.random.Random
 
 class DungeonGenerator(private val mapSize: Size) {
 
-    fun generateLevel(): List<Entity> {
+    fun generateLevel(player: Entity): List<Entity> {
 
         val level = Section(Rect.create(Position.topLeftCorner(), mapSize))
         val rng = Random.Default
@@ -48,6 +48,8 @@ class DungeonGenerator(private val mapSize: Size) {
             rooms.add(section)
             level.merge(section)
         }
+
+        player.position = rooms.first().bounds.center.to3DPosition(0)
 
         for (i in 1 until rooms.size) {
             val from = rooms[i].bounds.center

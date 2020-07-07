@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
 
     val dungeonGenerator = DungeonGenerator(mapSize.to2DSize())
 
-    entities.addAll(dungeonGenerator.generateLevel())
+    entities.addAll(dungeonGenerator.generateLevel(player))
 
     val engine = Engine(world, entities, player)
     engine.render()
