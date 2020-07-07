@@ -200,4 +200,35 @@ circle with a reduced radius. The downside is - the FOV check now takes consider
 
 ## Remember already explored tiles
 
-To conclude this part of the tutorial 
+To conclude this part of the tutorial, already explored tiles should stay visible. Or, to put it in the context
+of my implementation - any `Entity` of the type `TERRAIN` which has been inside the FOV once will be set to `isExplored=true`,
+and each `WorldBlock` which is outside the FOV but contains at least one `Entity` with the attribute `isExplored=true`
+will be displayed.
+
+Updating all visible entities is as simple as adding these lines to `ApplyFovAction`
+
+```kotlin
+engine.entities.filter {
+    entity.fieldOfVision.contains(it.position) && it.type == EntityType.TERRAIN
+}.forEach {
+    it.isExplored = true
+}
+```
+
+To display all tiles which were previously explored, a small modification to the `WorldBlock` is necessary
+
+```kotlin
+    private val exploredEmptyTile: Tile?
+        get() = entities.firstOrNull { it.isExplored && it.type == EntityType.TERRAIN }?.tile
+
+    override val emptyTile: Tile
+        get() =
+            when {
+                !isVisible -> exploredEmptyTile ?: super.emptyTile
+                entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
+                else -> super.emptyTile
+            }
+```
+
+This operator `?:` is called the _elvis operator_. Basically, `exploredEmptyTile ?: super.emptyTile` is short for
+`if(exploredEmptyTile == null) { exploredEmptyTile } else { super.emptyTile }`

@@ -19,10 +19,13 @@ class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
 
     var isVisible = false
 
+    private val exploredEmptyTile: Tile?
+        get() = entities.firstOrNull { it.isExplored && it.type == EntityType.TERRAIN }?.tile
+
     override val emptyTile: Tile
         get() =
             when {
-                !isVisible -> super.emptyTile
+                !isVisible -> exploredEmptyTile ?: super.emptyTile
                 entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
                 else -> super.emptyTile
             }
