@@ -28,3 +28,36 @@ will need some special treatment whenever it's used.
 
 I also prefixed all booleans with an `is`.
 
+## Creating a FOV
+
+For the field of vision, I will just use a set of booleans, where `true` means visible and `false` means not visible,
+there is no need for a _partially visible_ state at the edge of the FOV at the moment.
+
+I could either create an fov overlay for the whole map, or a smaller one which is positioned relative to the player. I 
+could even make it smaller by generating just a list of positions which are visible. This means - once again, I will
+add something to the `Entity` class. It seems fitting that the FOV is part of at least the player entity.
+
+```kotlin
+val fieldOfVision: MutableList<Position3D>? = null
+```
+
+Again, this val is nullable. I also need to pass an initial value here, since `fieldOfVision` is a val, not a var,
+which means is technically `final`.
+
+```kotlin
+    val player = Entity(
+        position = Position3D.defaultPosition(),
+        type = EntityType.ACTOR,
+        tile = Tile.newBuilder()
+            .withCharacter('@')
+            .withBackgroundColor(TileColor.transparent())
+            .withForegroundColor(TileColor.defaultForegroundColor())
+            .build(),
+        fieldOfVision = mutableListOf()
+    )
+```
+
+This is how the player entity creation looks now.
+
+To update the FOV, I added a `Action` class - `UpdateFovAction`, which is still empty right now. It is triggered after
+every action the player takes.

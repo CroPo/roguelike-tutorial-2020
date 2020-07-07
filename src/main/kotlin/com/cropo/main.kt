@@ -24,13 +24,14 @@ fun main(args: Array<String>) {
     val mapSize = Size3D.create(80, 50, 1)
 
     val player = Entity(
-        Position3D.create(screenSize.width / 2, screenSize.height / 2, 0),
-        EntityType.ACTOR,
-        Tile.newBuilder()
+        position = Position3D.defaultPosition(),
+        type = EntityType.ACTOR,
+        tile = Tile.newBuilder()
             .withCharacter('@')
             .withBackgroundColor(TileColor.transparent())
             .withForegroundColor(TileColor.defaultForegroundColor())
-            .build()
+            .build(),
+        fieldOfVision = mutableListOf()
     )
 
     val entities = mutableListOf(
