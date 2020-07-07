@@ -1,41 +1,41 @@
 package com.cropo.entity
 
-import com.cropo.entity.component.Component
-import com.cropo.entity.component.MapAttributes
-import com.cropo.entity.component.Position
-import com.cropo.entity.component.Tile
+import com.cropo.entity.component.GridAttributes
+import com.cropo.entity.component.GridPosition
+import com.cropo.entity.component.GridTile
 import com.cropo.tile.TileBlueprint
+import org.hexworks.cobalt.core.api.UUID
 import org.hexworks.zircon.api.data.Position3D
 
 object EntityBlueprint {
 
-    fun wallEntity(position: Position3D): Entity {
-        return Entity(
-            mutableListOf(
-                Position(position),
-                Tile(
+    fun wallEntity(engine: EntityEngine, position: Position3D): UUID {
+        return EntityBuilder.createBuilder(engine).with(
+            setOf(
+                GridPosition(position),
+                GridTile(
                     tileVisible = TileBlueprint.wall(),
                     tileHidden = TileBlueprint.wallExplored()
                 ),
-                MapAttributes(
+                GridAttributes(
                     isBlocking = true
                 )
             )
-        )
+        ).build()
     }
 
-    fun floorEntity(position: Position3D): Entity {
-        return Entity(
-            mutableListOf(
-                Position(position),
-                Tile(
-                    tileVisible = TileBlueprint.floor(),
-                    tileHidden = TileBlueprint.floorExplored()
+    fun floorEntity(engine: EntityEngine, position: Position3D): UUID {
+        return EntityBuilder.createBuilder(engine).with(
+            setOf(
+                GridPosition(position),
+                GridTile(
+                    tileVisible = TileBlueprint.wall(),
+                    tileHidden = TileBlueprint.wallExplored()
                 ),
-                MapAttributes(
-                    isTransparent = true
+                GridAttributes(
+                    isBlocking = true
                 )
             )
-        )
+        ).build()
     }
 }

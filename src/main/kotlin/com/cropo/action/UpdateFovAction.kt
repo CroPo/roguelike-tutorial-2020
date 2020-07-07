@@ -1,14 +1,10 @@
 package com.cropo.action
 
 import com.cropo.engine.Engine
-import com.cropo.entity.Entity
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Position3D
-import org.hexworks.zircon.api.data.Size
 import org.hexworks.zircon.api.shape.EllipseFactory
-import org.hexworks.zircon.api.shape.EllipseParameters
 import org.hexworks.zircon.api.shape.LineFactory
-import kotlin.system.measureTimeMillis
 
 /**
  * Update the FOV of an [Entity]

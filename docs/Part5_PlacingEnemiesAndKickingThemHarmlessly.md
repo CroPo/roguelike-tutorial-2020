@@ -75,3 +75,77 @@ fun wallEntity(position: Position3D): Entity {
     )
 }
 ```
+
+Before I can continue further, I need to implement a few more things. Right now, I have no way to access a specific
+`Component` of an entity (or even check for its existence) in a somewhat convenient way. I need something which handles all
+access and management of the entities.
+
+With all of what I have created here before in mind, I can actually reduce the `Entity` itself to an `id`. This is
+the _only_ thing all entities will have in common, maybe not now, but very soon. In my case, the `id` of an entity
+will be a randomly generated `UUID` (which is also provided by zircon).
+
+For a start, I created the class `EntityEngine` here, which should fulfil all the mentioned requirements.
+
+```kotlin
+class EntityEngine {
+    private val componentStorage : MutableMap<KClass<Component>, MutableMap<UUID, Component>> = mutableMapOf()
+}
+```
+
+All componets in the storage are mapped to their entity `UUID`, and all those mapped components of the same type 
+are mapped to their corresponding type.
+
+```kotlin
+fun createEntity(): UUID {
+    return UUID.randomUUID()
+}
+
+fun addComponent(entityId: UUID, component: Component) {
+    getOrCreateComponentMap(component)[entityId] = component
+}
+
+fun addComponents(entityId: UUID, components: Set<Component>) {
+    components.forEach {
+        addComponent(entityId, it)
+    }
+}
+
+private fun getOrCreateComponentMap(component: Component): MutableMap<UUID, Component> {
+    return if (componentStorage[component::class] != null) {
+        componentStorage[component::class]!!
+    } else {
+        val componentMap = mutableMapOf<UUID, Component>()
+        componentStorage[component::class] = componentMap
+        componentMap
+    }
+}
+```
+
+This is the first bunch of methods. On for creating a new entity (a random `UUID` here), and two for assigning
+components to the entities. For easier access, I added a `EntityBuilder` class, and once again updated the 
+`EntityBlueprint` object.
+
+Next up, I will implement accessors to the components.
+```kotlin
+fun has(entityId: UUID, componentClass: KClass<out Component>): Boolean {
+    return componentStorage[componentClass] != null && componentStorage[componentClass]?.containsKey(entityId)!!
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T : Component> get(entityId: UUID, componentClass: KClass<T>) : T? {
+    return componentStorage[componentClass]?.get(entityId) as T?
+}
+```
+With these, I can access specific components of a single entity. I decided to keep the names short - since the only
+_thing_ which could be queried are components anyways. There is no check planned if an entity _exists_, because
+an entity without any components is useless.
+
+To get all entities of a specific type, I added this method:
+```kotlin
+@Suppress("UNCHECKED_CAST")
+fun <T : Component> get(componentClass: KClass<T>) : Map<UUID, T> {
+    return componentStorage[componentClass] as Map<UUID, T>
+}
+```
+
+There is still a lot left to fix, the game is far from being able to run or compile. 

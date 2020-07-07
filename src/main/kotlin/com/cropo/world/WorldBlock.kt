@@ -1,8 +1,9 @@
 package com.cropo.world
 
-import com.cropo.entity.Entity
+import com.cropo.entity.component.GridTile
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
+import org.hexworks.cobalt.core.api.UUID
 import org.hexworks.zircon.api.data.Block
 import org.hexworks.zircon.api.data.BlockTileType
 import org.hexworks.zircon.api.data.Tile
@@ -41,7 +42,11 @@ class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
         )
         set(value) {}
 
-    fun addEntity(entity: Entity) {
+    fun addEntity(entity: UUID) {
+        if(!entity.components.any { it is GridTile }) {
+            return
+        }
+
         entities.add(entity)
         entities.sortBy { it.type }
     }

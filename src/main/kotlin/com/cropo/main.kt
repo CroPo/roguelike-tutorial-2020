@@ -1,11 +1,10 @@
 package com.cropo
 
 import com.cropo.engine.Engine
-import com.cropo.entity.Entity
+import com.cropo.entity.EntityBuilder
+import com.cropo.entity.EntityEngine
 import com.cropo.entity.component.FieldOfView
-import com.cropo.entity.component.MapAttributes
-import com.cropo.entity.component.Position
-import com.cropo.tile.TileBlueprint
+import com.cropo.entity.component.GridPosition
 import com.cropo.tile.TileLayer
 import com.cropo.world.dungeon.DungeonGenerator
 import com.cropo.world.World
@@ -27,10 +26,12 @@ fun main(args: Array<String>) {
     val screenSize = Size.create(80, 50)
     val mapSize = Size3D.create(80, 50, 1)
 
-    val player = Entity(
+    val entityEngine = EntityEngine()
+
+    val player = EntityBuilder.createBuilder(entityEngine).with(
         mutableListOf(
-            Position(),
-            com.cropo.entity.component.Tile(
+            GridPosition(),
+            com.cropo.entity.component.GridTile(
                 tileVisible = Tile.newBuilder()
                     .withCharacter('@')
                     .withBackgroundColor(TileColor.transparent())
@@ -40,11 +41,7 @@ fun main(args: Array<String>) {
             ),
             FieldOfView()
         )
-    )
-
-    val entities = mutableListOf(
-        player
-    )
+    ).build()
 
     val grid: TileGrid = SwingApplications.startTileGrid(
         AppConfig.newBuilder()
@@ -59,8 +56,7 @@ fun main(args: Array<String>) {
     val world = World(mapSize, mapSize)
 
     val dungeonGenerator = DungeonGenerator(mapSize.to2DSize())
-
-    entities.addAll(dungeonGenerator.generateLevel(player))
+    dungeonGenerator.generateLevel(player)
 
     val engine = Engine(world, entities, player)
     engine.render()
