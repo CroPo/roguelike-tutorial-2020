@@ -13,5 +13,6 @@ the `docs` directory:
 - [Part 2 - The generic Entity, the render functions, and the map](docs/Part2_TheGenericEntityTheRenderFunctionsAndTheMap.md)
 - [Part 3 - Generating a dungeon](docs/Part3_GeneratingADungeon.md)
 - [Part 4 - Field of view](docs/Part4_FieldOfView.md)
+- [Part 5 - Placing Enemies and kicking them (harmlessly)](docs/Part5_PlacingEnemiesAndKickingThemHarmlessly.md)
 
 Again, feel free to comment every piece of code. The main purpose for my participation is to learn Kotlin, so anything helps.
