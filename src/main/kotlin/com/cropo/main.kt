@@ -2,7 +2,11 @@ package com.cropo
 
 import com.cropo.engine.Engine
 import com.cropo.entity.Entity
-import com.cropo.entity.EntityType
+import com.cropo.entity.component.FieldOfView
+import com.cropo.entity.component.MapAttributes
+import com.cropo.entity.component.Position
+import com.cropo.tile.TileBlueprint
+import com.cropo.tile.TileLayer
 import com.cropo.world.dungeon.DungeonGenerator
 import com.cropo.world.World
 import com.cropo.world.WorldBlock
@@ -24,14 +28,18 @@ fun main(args: Array<String>) {
     val mapSize = Size3D.create(80, 50, 1)
 
     val player = Entity(
-        position = Position3D.defaultPosition(),
-        type = EntityType.ACTOR,
-        tile = Tile.newBuilder()
-            .withCharacter('@')
-            .withBackgroundColor(TileColor.transparent())
-            .withForegroundColor(TileColor.defaultForegroundColor())
-            .build(),
-        fieldOfVision = mutableListOf()
+        mutableListOf(
+            Position(),
+            com.cropo.entity.component.Tile(
+                tileVisible = Tile.newBuilder()
+                    .withCharacter('@')
+                    .withBackgroundColor(TileColor.transparent())
+                    .withForegroundColor(TileColor.defaultForegroundColor())
+                    .build(),
+                layer = TileLayer.ACTOR
+            ),
+            FieldOfView()
+        )
     )
 
     val entities = mutableListOf(

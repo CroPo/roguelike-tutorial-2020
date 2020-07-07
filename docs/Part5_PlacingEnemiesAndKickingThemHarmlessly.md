@@ -52,3 +52,26 @@ class Entity(
     val components : MutableList<Component>
 )
 ```
+
+At this point, I don't even dare to hit the _run_ button. 
+
+The next step, and maybe the easiest, ist getting the `EntityBlueprint` object updated. This is how the 
+`wall` blueprint looks now - the `floor` is very similar to this. And the `player` entity created in `main.kt` is
+updated, too.
+
+```kotlin
+fun wallEntity(position: Position3D): Entity {
+    return Entity(
+        mutableListOf(
+            Position(position),
+            Tile(
+                tileVisible = TileBlueprint.wall(),
+                tileHidden = TileBlueprint.wallExplored()
+            ),
+            MapAttributes(
+                isBlocking = true
+            )
+        )
+    )
+}
+```

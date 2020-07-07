@@ -1,7 +1,6 @@
 package com.cropo.world
 
 import com.cropo.entity.Entity
-import com.cropo.entity.EntityType
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import org.hexworks.zircon.api.data.Block
