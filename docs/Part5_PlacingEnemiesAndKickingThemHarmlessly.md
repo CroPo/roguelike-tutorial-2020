@@ -298,3 +298,50 @@ override fun perform(engine: Engine, entityId: UUID) {
 Still not very confident about the `entityEngine.get(GridAttributes::class)`. It might just not work as intended,
 but then I will find a different solution - and if I have to typecast every single entry I will do.
 
+This is the updated UpdateFovAction
+
+```kotlin
+override fun perform(engine: Engine, entityId: UUID) {
+    if (!engine.entityEngine.has(entityId, FieldOfView::class) ||
+        !engine.entityEngine.has(entityId, GridPosition::class)
+    ) {
+        return
+    }
+    
+    val fovComponent = engine.entityEngine.get(entityId, FieldOfView::class)!!
+    
+    val gridAttributesEntities = engine.entityEngine.get(GridAttributes::class).filter { (entityId, _) ->
+        engine.entityEngine.has(entityId, GridPosition::class)
+    }
+    
+    
+    val center = engine.entityEngine.get(entityId, GridPosition::class)!!.position2D
+    val radius = 11
+    
+    val visiblePositions: MutableList<Position3D> = mutableListOf()
+    
+    EllipseFactory.buildEllipse(
+        fromPosition = center,
+        toPosition = center.withRelative(Position.create(radius, radius))
+    ).positions.plus(
+        EllipseFactory.buildEllipse(
+            fromPosition = center,
+            toPosition = center.withRelative(Position.create(radius - 1, radius - 1))
+        ).positions
+    ).forEach { fovPosition ->
+        for (linePosition in LineFactory.buildLine(center, fovPosition).positions) {
+            visiblePositions.add(linePosition.to3DPosition(0))
+    
+            if (gridAttributesEntities.filter { (entityId, _) ->
+                    engine.entityEngine.get(entityId, GridPosition::class)!!.position2D == linePosition
+                }.any { (_, gridAttributes) -> !gridAttributes.isTransparent }) {
+                break
+            }
+        }
+    }
+    
+    fovComponent.visible.clear()
+    fovComponent.visible.addAll(visiblePositions)
+}
+```
+

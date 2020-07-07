@@ -1,6 +1,9 @@
 package com.cropo.action
 
 import com.cropo.engine.Engine
+import com.cropo.entity.component.FieldOfView
+import com.cropo.entity.component.GridAttributes
+import com.cropo.entity.component.GridPosition
 import org.hexworks.cobalt.core.api.UUID
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Position3D
@@ -11,12 +14,21 @@ import org.hexworks.zircon.api.shape.LineFactory
  * Update the FOV of an [Entity]
  */
 class UpdateFovAction : Action {
-    override fun perform(engine: Engine, entity: UUID) {
-        if (entity.fieldOfVision == null) {
+    override fun perform(engine: Engine, entityId: UUID) {
+        if (!engine.entityEngine.has(entityId, FieldOfView::class) ||
+            !engine.entityEngine.has(entityId, GridPosition::class)
+        ) {
             return
         }
 
-        val center = entity.position.to2DPosition()
+        val fovComponent = engine.entityEngine.get(entityId, FieldOfView::class)!!
+
+        val gridAttributesEntities = engine.entityEngine.get(GridAttributes::class).filter { (entityId, _) ->
+            engine.entityEngine.has(entityId, GridPosition::class)
+        }
+
+
+        val center = engine.entityEngine.get(entityId, GridPosition::class)!!.position2D
         val radius = 11
 
         val visiblePositions: MutableList<Position3D> = mutableListOf()
@@ -32,15 +44,16 @@ class UpdateFovAction : Action {
         ).forEach { fovPosition ->
             for (linePosition in LineFactory.buildLine(center, fovPosition).positions) {
                 visiblePositions.add(linePosition.to3DPosition(0))
-                if (engine.entities.filter { it.position.to2DPosition() == linePosition }
-                        .any { !it.isTransparent }) {
+
+                if (gridAttributesEntities.filter { (entityId, _) ->
+                        engine.entityEngine.get(entityId, GridPosition::class)!!.position2D == linePosition
+                    }.any { (_, gridAttributes) -> !gridAttributes.isTransparent }) {
                     break
                 }
             }
         }
 
-
-        entity.fieldOfVision.clear()
-        entity.fieldOfVision.addAll(visiblePositions)
+        fovComponent.visible.clear()
+        fovComponent.visible.addAll(visiblePositions)
     }
 }
