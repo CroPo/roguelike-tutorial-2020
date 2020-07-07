@@ -7,6 +7,8 @@ class Entity(
     var position: Position3D,
     val type: EntityType,
     val tile: Tile,
-    val walkable: Boolean = true,
-    val transparent: Boolean = true
+    val tileHidden: Tile? = null,
+    val isWalkable: Boolean = true,
+    val isTransparent: Boolean = true,
+    var isExplored: Boolean = false
 )

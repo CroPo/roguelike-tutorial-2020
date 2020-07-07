@@ -12,7 +12,7 @@ class MovementAction(val dx: Int = 0, val dy: Int = 0) : Action {
 
         when {
             targetPosition.x !in 0 until engine.gameArea.actualSize.xLength || targetPosition.y !in 0 until engine.gameArea.actualSize.yLength -> println("Can't move beyond the edge of the world")
-            engine.entities.filter { it.position == targetPosition }.any { !it.walkable } -> println("Walked into a wall. BONK!")
+            engine.entities.filter { it.position == targetPosition }.any { !it.isWalkable } -> println("Walked into a wall. BONK!")
             else -> {
                 engine.gameArea.fetchBlockAt(entity.position).get().removeEntity(entity)
                 engine.gameArea.fetchBlockAt(targetPosition).get().addEntity(entity)
