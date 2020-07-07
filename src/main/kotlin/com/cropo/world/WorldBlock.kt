@@ -17,9 +17,12 @@ import org.hexworks.zircon.api.data.base.BaseBlock
 class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
     BaseBlock<Tile>(Tile.empty(), persistentMapOf()) {
 
+    var isVisible = false
+
     override val emptyTile: Tile
         get() =
             when {
+                !isVisible -> super.emptyTile
                 entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
                 else -> super.emptyTile
             }
@@ -28,6 +31,7 @@ class WorldBlock(private val entities: MutableList<Entity> = mutableListOf()) :
         get() = persistentMapOf(
             Pair(
                 BlockTileType.TOP, when {
+                    !isVisible -> emptyTile
                     entities.isEmpty() -> emptyTile
                     else -> entities.first().tile
                 }

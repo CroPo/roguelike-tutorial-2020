@@ -90,3 +90,44 @@ fovCircle.positions.forEach { fovPosition ->
 ```
 
 This should bascially work I think.
+
+## Hide and show the terrain
+
+This time, I might need to actually modify the `WorldBlock` and set it to either visible or not visible. Adding a visible
+state to the `Entity` class might not be fully sufficient here, since the fov is only updated once each turn, and would 
+need some extra work if, for example, a NPC moves out of the FOV after the player's actions. So I just added 
+`var isVisible = false` to `WorldBlock`
+
+First, a small addition to the `World` class:
+```kotlin
+fun updateFov(visiblePositions: List<Position3D>) {
+    blocks.forEach { (_, block) -> block.isVisible = false }
+    visiblePositions.forEach { position ->
+        blocks[position]?.isVisible = true
+    }
+}
+```
+The first line resets all blocks to an invisible state. The second one sets all blocks within the FOV to visible again.
+
+To hide everything which is invisble I made a small change in `WorldBlock`s `tiles` and `emptyTile` getter:
+```kotlin
+override val emptyTile: Tile
+    get() =
+        when {
+            !isVisible -> super.emptyTile
+            entities.any { it.type == EntityType.TERRAIN } -> entities.first { it.type == EntityType.TERRAIN }.tile
+            else -> super.emptyTile
+        }
+
+override var tiles: PersistentMap<BlockTileType, Tile>
+    get() = persistentMapOf(
+        Pair(
+            BlockTileType.TOP, when {
+                !isVisible -> emptyTile
+                entities.isEmpty() -> emptyTile
+                else -> entities.first().tile
+            }
+        )
+    )
+```
+So, right now, only tiles which are inside the fov are shown - the `explored` part is completely ignored for now.
