@@ -61,3 +61,32 @@ This is how the player entity creation looks now.
 
 To update the FOV, I added a `Action` class - `UpdateFovAction`, which is still empty right now. It is triggered after
 every action the player takes.
+
+## Calculating the FOV
+
+I did a bit of digging around in the zircon library, and I found their implementation of a few Bresenham shape
+algorithms, which is just what I need for the calculation.
+
+First, I will need to create a circle containing all possible visible positions. Right now, the vision range of
+the player is a diameter of 11 units.
+```kotlin
+val fovCircle = EllipseFactory.buildEllipse(
+    EllipseParameters(entity.position.to2DPosition(), Size.create(11,11)))
+```
+
+And for the actual calculation, I will cast a `Line` from the center to each available position inside the FOV circle:
+
+```kotlin
+val visiblePositions: MutableList<Position3D> = mutableListOf()
+fovCircle.positions.forEach { fovPosition ->
+    LineFactory.buildLine(center, fovPosition).positions
+        .filterNot { visiblePositions.contains(it.to3DPosition(0)) }
+        .takeWhile { linePosition ->
+            !engine.entities.filter { it.position.to2DPosition() == linePosition }
+                .any { !it.isTransparent }
+        }
+        .forEach { visiblePositions.add(it.to3DPosition(0)) }
+}
+```
+
+This should bascially work I think.
