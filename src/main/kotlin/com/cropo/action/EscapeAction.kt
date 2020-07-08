@@ -8,7 +8,7 @@ import kotlin.system.exitProcess
  * Perform any action associated with pressing the `ESC` key
  */
 class EscapeAction : Action {
-    override fun perform(engine: Engine, entity: UUID) {
+    override fun perform(engine: Engine, entityId: UUID) {
         exitProcess(0)
     }
 }

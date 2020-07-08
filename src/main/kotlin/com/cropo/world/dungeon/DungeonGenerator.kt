@@ -1,6 +1,8 @@
 package com.cropo.world.dungeon
 
 import com.cropo.entity.EntityBlueprint
+import com.cropo.entity.EntityEngine
+import com.cropo.entity.component.GridPosition
 import com.cropo.world.dungeon.LayoutElement.*
 import com.cropo.world.dungeon.layout.RectangularRoomLayout
 
@@ -9,11 +11,12 @@ import org.hexworks.zircon.api.data.Rect
 import org.hexworks.zircon.api.data.Size
 import com.cropo.extension.create
 import com.cropo.world.dungeon.layout.LShapedCorridorLayout
+import org.hexworks.cobalt.core.api.UUID
 import kotlin.random.Random
 
 class DungeonGenerator(private val mapSize: Size) {
 
-    fun generateLevel(player: Entity): List<Entity> {
+    fun generateLevel(entityEngine: EntityEngine, player: UUID) {
 
         val level = Section(Rect.create(Position.topLeftCorner(), mapSize))
         val rng = Random.Default
@@ -47,7 +50,7 @@ class DungeonGenerator(private val mapSize: Size) {
             level.merge(section)
         }
 
-        player.position = rooms.first().bounds.center.to3DPosition(0)
+        entityEngine.get(player, GridPosition::class)!!.position2D = rooms.first().bounds.center
 
         for (i in 1 until rooms.size) {
             val from = rooms[i].bounds.center
@@ -57,17 +60,12 @@ class DungeonGenerator(private val mapSize: Size) {
             level.merge(corridor)
         }
 
-        val entities = mutableListOf<Entity>()
 
         level.layout.forEach { (position: Position, element: LayoutElement) ->
-            entities.add(
-                when (element) {
-                    FLOOR -> EntityBlueprint.floorEntity(position.to3DPosition(0))
-                    WALL -> EntityBlueprint.wallEntity(position.to3DPosition(0))
-                }
-            )
-
+            when (element) {
+                FLOOR -> EntityBlueprint.floorEntity(entityEngine, position.toPosition3D(0))
+                WALL -> EntityBlueprint.wallEntity(entityEngine, position.toPosition3D(0))
+            }
         }
-        return entities
     }
 }

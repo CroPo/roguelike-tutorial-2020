@@ -7,6 +7,6 @@ import org.hexworks.cobalt.core.api.UUID
  * Do nothing
  */
 class NoAction : Action {
-    override fun perform(engine: Engine, entity: UUID) {
+    override fun perform(engine: Engine, entityId: UUID) {
     }
 }

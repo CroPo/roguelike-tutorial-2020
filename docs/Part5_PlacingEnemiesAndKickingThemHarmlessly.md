@@ -378,3 +378,6 @@ override fun perform(engine: Engine, entityId: UUID) {
     }
 }
 ```
+
+And the last class to change was the `DungeonGenerator`. I won't post that here, it's too much code.
+
