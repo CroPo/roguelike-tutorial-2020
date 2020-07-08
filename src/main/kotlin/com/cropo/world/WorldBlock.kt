@@ -1,6 +1,7 @@
 package com.cropo.world
 
 import com.cropo.entity.EntityEngine
+import com.cropo.entity.component.GridAttributes
 import com.cropo.entity.component.GridTile
 import com.cropo.tile.TileLayer
 import kotlinx.collections.immutable.PersistentMap
@@ -31,7 +32,10 @@ class WorldBlock(private val entityEngine: EntityEngine) :
 
     private val exploredEmptyTile: Tile?
         get() =
-            terrainLayerEntities.map {
+            terrainLayerEntities.filter {
+                entityEngine.has(it, GridAttributes::class)
+                        && entityEngine.get(it, GridAttributes::class)!!.isExplored
+            }.map {
                 entityEngine.get(it, GridTile::class)!!.tileHidden
             }.firstOrNull()
 

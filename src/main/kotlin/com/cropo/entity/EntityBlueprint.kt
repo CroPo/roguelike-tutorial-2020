@@ -29,11 +29,11 @@ object EntityBlueprint {
             setOf(
                 GridPosition(position),
                 GridTile(
-                    tileVisible = TileBlueprint.wall(),
-                    tileHidden = TileBlueprint.wallExplored()
+                    tileVisible = TileBlueprint.floor(),
+                    tileHidden = TileBlueprint.floorExplored()
                 ),
                 GridAttributes(
-                    isBlocking = true
+                    isTransparent = true
                 )
             )
         ).build()

@@ -381,3 +381,8 @@ override fun perform(engine: Engine, entityId: UUID) {
 
 And the last class to change was the `DungeonGenerator`. I won't post that here, it's too much code.
 
+As ist seems, the project compiles! 
+But.
+The map is filled with Wall tiles, and the FOV doesn't seem to work (because the walls don't block anything).
+
+There were just a few minor issues with copy and pasting, the whole new entity stuff technically works.
