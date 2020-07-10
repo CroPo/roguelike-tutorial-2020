@@ -65,6 +65,9 @@ class WorldBlock(private val entityEngine: EntityEngine) :
         )
         set(value) {}
 
+    /**
+     * Add an entity to this block. If the entity doesn't have the [GridTile] component, it won't be added.
+     */
     fun addEntity(entity: UUID) {
         if(!entityEngine.has(entity, GridTile::class)) {
             return
@@ -75,8 +78,18 @@ class WorldBlock(private val entityEngine: EntityEngine) :
         }
     }
 
+    /**
+     * Removes an entity from this block.
+     */
     fun removeEntity(entity: UUID) {
         entities.remove(entity)
+    }
+
+    /**
+     * Get an (immutable) [List] of all entities which are present on this block
+     */
+    fun getEntityList() : List<UUID> {
+        return entities
     }
 
     override fun createCopy(): Block<Tile> {

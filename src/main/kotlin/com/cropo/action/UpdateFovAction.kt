@@ -22,12 +22,6 @@ class UpdateFovAction : Action {
         }
 
         val fovComponent = engine.entityEngine.get(entityId, FieldOfView::class)!!
-
-        val gridAttributesEntities = engine.entityEngine.get(GridAttributes::class).filter { (entityId, _) ->
-            engine.entityEngine.has(entityId, GridPosition::class)
-        }
-
-
         val center = engine.entityEngine.get(entityId, GridPosition::class)!!.position2D
         val radius = 11
 
@@ -45,9 +39,14 @@ class UpdateFovAction : Action {
             for (linePosition in LineFactory.buildLine(center, fovPosition).positions) {
                 visiblePositions.add(linePosition.to3DPosition(0))
 
-                if (gridAttributesEntities.filter { (entityId, _) ->
-                        engine.entityEngine.get(entityId, GridPosition::class)!!.position2D == linePosition
-                    }.any { (_, gridAttributes) -> !gridAttributes.isTransparent }) {
+                val entitiesOnPosition =
+                    engine.gameArea.fetchBlockAt(linePosition.to3DPosition(0)).get().getEntityList()
+
+                if (entitiesOnPosition.mapNotNull {
+                        engine.entityEngine.get(it, GridAttributes::class)
+                    }.any {
+                        !it.isTransparent
+                    }) {
                     break
                 }
             }

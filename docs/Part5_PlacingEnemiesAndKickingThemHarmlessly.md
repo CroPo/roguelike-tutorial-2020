@@ -386,3 +386,71 @@ But.
 The map is filled with Wall tiles, and the FOV doesn't seem to work (because the walls don't block anything).
 
 There were just a few minor issues with copy and pasting, the whole new entity stuff technically works.
+
+## Handling performance issues
+
+Technically, yes. Practically, on my notebook the performance is so bad it takes about 5 seconds to even 
+generate the dungeon (which isn't really the problem, this only happens once every level), and about 2 seconds
+to do a full FOV update (which _is_ a problem). The notebook is an older Thinkpad with not a _that_
+good processor, but even on my main computer with a Ryzen 5 of last year's generation, it takes a lot of time.
+
+Obviously, the problem is that for each and every action on any `Position` 4000 entities are queried, all the time.
+One of those calls won't be a problem, but, for example, in the FOV calculation 4000 entities are queried for every 
+single step of the ray cast. 
+
+Yes, I knew right from the beginning that my _everything is an entity_ approach will bring up a lot of challenges
+(and, to be frank, is possibly outright stupid). It's likely not a decision I would make if I would build a game
+for the sake of building a game. It's was a _do the tutorial a bit different to learn some new stuff_ decision.
+
+Storing that amount of data isn't really a problem - it takes about 200 megabytes of RAM, but this includes a
+lot of other stuff too (mostly other stuff to be fair... storing a few thousand integers shouldn't even be in
+the MB area - 4000 times 3 64 bit integers should vaguely be around 100 kB, with some additional JVM overhead of course ).
+
+I could try to optimize the dungeon creation - for example, just not create an entity for a terrain feature which
+will never be visible anyways. This would reduce the number of entities quite a lot - by around 1/4th to 1/3rd. 
+But again, the _amount_ of entities isn't a problem, but the amount of queries is. 
+
+The other thing which comes to my mind is scrapping the _everything is an entity_ style. This would work, but
+it took already so much time to redo the entity stuff to what it is now I really don't want to do this. And I
+want to stick to my bad decisions.
+
+The final idea is to not iterate over thousands of entities which are _possibly_ on the desired position, but
+to get all components for entities which I know to be on a specific position. And each `GameBlock` knows which
+entities are present on its position. And the `World` has indexed all `GameBlock`s by their position. So
+this seems to be a viable solution. I know this contradicts the statement _`World` will only be used for presentation_,
+but I don't see any other way.
+
+And just a small update in the `UpdateFovAction` already resulted in a huge performance increase.
+
+```kotlin
+//...
+).forEach { fovPosition ->
+    for (linePosition in LineFactory.buildLine(center, fovPosition).positions) {
+        visiblePositions.add(linePosition.to3DPosition(0))
+
+        val entitiesOnPosition = engine.gameArea.fetchBlockAt(linePosition.to3DPosition(0)).get().getEntityList()
+
+        if (entitiesOnPosition.mapNotNull {
+                engine.entityEngine.get(it, GridAttributes::class)
+            }.any {
+                !it.isTransparent
+            }) {
+            break
+        }
+    }
+}
+//...
+```
+
+It's still quite laggy, because I still have to make a similar change in the `ApplyFovAction` class, too.
+
+```kotlin
+visible.forEach { position ->
+    val entitiesOnPosition = engine.gameArea.fetchBlockAt(position).get().getEntityList()
+    entitiesOnPosition.mapNotNull { entityId ->
+        engine.entityEngine.get(entityId, GridAttributes::class)
+    }.forEach { gridAttributes ->
+        gridAttributes.isExplored = true
+    }
+}
+```

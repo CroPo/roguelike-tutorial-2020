@@ -19,16 +19,15 @@ class ApplyFovAction(val world: World) : Action {
             return
         }
 
-        val entityPosition = engine.entityEngine.get(entityId, GridPosition::class)!!.position3D
         val visible = engine.entityEngine.get(entityId, FieldOfView::class)!!.visible
 
         world.updateFov(visible)
 
-        visible.forEach {
-            engine.entityEngine.get(GridAttributes::class).filter { (entityId, _) ->
-                engine.entityEngine.has(entityId, GridPosition::class) &&
-                        engine.entityEngine.get(entityId, GridPosition::class)!!.position3D == it
-            }.forEach { (_, gridAttributes) ->
+        visible.forEach { position ->
+            val entitiesOnPosition = engine.gameArea.fetchBlockAt(position).get().getEntityList()
+            entitiesOnPosition.mapNotNull { entityId ->
+                engine.entityEngine.get(entityId, GridAttributes::class)
+            }.forEach { gridAttributes ->
                 gridAttributes.isExplored = true
             }
         }
