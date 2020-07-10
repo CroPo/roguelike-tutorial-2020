@@ -17,6 +17,8 @@ class MovementAction(val dx: Int = 0, val dy: Int = 0) : Action {
 
         val entityPosition = engine.entityEngine.get(entityId, GridPosition::class)
         val targetPosition = entityPosition!!.position3D.withRelativeX(dx).withRelativeY(dy)
+        val entitiesOnTarget =
+            engine.gameArea.fetchBlockAt(targetPosition).get().getEntityList()
 
         when {
             targetPosition.x !in 0 until engine.gameArea.actualSize.xLength
@@ -24,12 +26,10 @@ class MovementAction(val dx: Int = 0, val dy: Int = 0) : Action {
             -> println(
                 "Can't move beyond the edge of the world"
             )
-            engine.entityEngine.get(GridPosition::class).filter {
-                    (entityId, position) ->
-                position.position3D == targetPosition && engine.entityEngine.has(entityId, GridAttributes::class)
+            entitiesOnTarget.mapNotNull {
+                engine.entityEngine.get(it, GridAttributes::class)
             }.any {
-                (entityId, _) ->
-                engine.entityEngine.get(entityId, GridAttributes::class)!!.isBlocking
+                it.isBlocking
             } -> println("Walked into a wall. BONK!")
             else -> {
                 engine.gameArea.fetchBlockAt(entityPosition.position3D).get().removeEntity(entityId)

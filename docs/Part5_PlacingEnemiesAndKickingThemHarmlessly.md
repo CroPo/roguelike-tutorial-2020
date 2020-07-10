@@ -454,3 +454,5 @@ visible.forEach { position ->
     }
 }
 ```
+
+And with the same change made in `MovementAction`, the performance is fine again.
