@@ -456,3 +456,19 @@ visible.forEach { position ->
 ```
 
 And with the same change made in `MovementAction`, the performance is fine again.
+
+
+## Placing enemies
+
+With the entity system rebuilt, and the performance issues handled, it's finally time to start with the tutorial again.
+First of all, a new component is necessary.
+
+```kotlin
+data class Name(
+    val name: String,
+    val description: String = ""
+) : Component
+```
+
+I also added a blueprint for both the `orc` and the `troll`, so now I can finally start placing them in
+the dungeon.

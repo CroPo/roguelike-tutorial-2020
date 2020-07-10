@@ -3,8 +3,8 @@ package com.cropo
 import com.cropo.engine.Engine
 import com.cropo.entity.EntityBuilder
 import com.cropo.entity.EntityEngine
-import com.cropo.entity.component.FieldOfView
-import com.cropo.entity.component.GridPosition
+import com.cropo.entity.component.*
+import com.cropo.tile.TileBlueprint
 import com.cropo.tile.TileLayer
 import com.cropo.world.dungeon.DungeonGenerator
 import com.cropo.world.World
@@ -15,7 +15,6 @@ import org.hexworks.zircon.api.SwingApplications
 import org.hexworks.zircon.api.application.AppConfig
 import org.hexworks.zircon.api.builder.component.GameComponentBuilder
 import org.hexworks.zircon.api.builder.screen.ScreenBuilder
-import org.hexworks.zircon.api.color.TileColor
 import org.hexworks.zircon.api.data.*
 import org.hexworks.zircon.api.grid.TileGrid
 import org.hexworks.zircon.api.uievent.KeyboardEventType
@@ -30,13 +29,17 @@ fun main(args: Array<String>) {
 
     val player = EntityBuilder.createBuilder(entityEngine).with(
         mutableListOf(
+            Name(
+                name = "Player",
+                description = "This is you"
+            ),
             GridPosition(),
-            com.cropo.entity.component.GridTile(
-                tileVisible = Tile.newBuilder()
-                    .withCharacter('@')
-                    .withBackgroundColor(TileColor.transparent())
-                    .withForegroundColor(TileColor.defaultForegroundColor())
-                    .build(),
+            GridAttributes(
+                isBlocking = true,
+                isTransparent = true
+            ),
+            GridTile(
+                tileVisible = TileBlueprint.player(),
                 layer = TileLayer.ACTOR
             ),
             FieldOfView()
