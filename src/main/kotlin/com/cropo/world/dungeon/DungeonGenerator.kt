@@ -3,7 +3,7 @@ package com.cropo.world.dungeon
 import com.cropo.entity.EntityBlueprint
 import com.cropo.entity.EntityEngine
 import com.cropo.entity.component.GridPosition
-import com.cropo.world.dungeon.LayoutElement.*
+import com.cropo.world.dungeon.layout.LayoutElement.*
 import com.cropo.world.dungeon.layout.RectangularRoomLayout
 
 import org.hexworks.zircon.api.data.Position
@@ -11,6 +11,7 @@ import org.hexworks.zircon.api.data.Rect
 import org.hexworks.zircon.api.data.Size
 import com.cropo.extension.create
 import com.cropo.world.dungeon.layout.LShapedCorridorLayout
+import com.cropo.world.dungeon.layout.LayoutElement
 import org.hexworks.cobalt.core.api.UUID
 import kotlin.random.Random
 

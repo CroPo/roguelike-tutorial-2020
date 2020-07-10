@@ -1,4 +1,4 @@
-package com.cropo.world.dungeon
+package com.cropo.world.dungeon.layout
 
 /**
  * A single element in a [Section.layout]

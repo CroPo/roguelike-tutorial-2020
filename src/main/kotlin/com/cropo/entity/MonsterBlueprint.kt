@@ -37,8 +37,8 @@ object MonsterBlueprint {
             setOf(
                 GridPosition(position),
                 Name(
-                    name = "Orc",
-                    description = "A regular greenskin"
+                    name = "Troll",
+                    description = "Big, hairy and hungry"
                 ),
                 GridTile(
                     tileVisible = TileBlueprint.troll(),

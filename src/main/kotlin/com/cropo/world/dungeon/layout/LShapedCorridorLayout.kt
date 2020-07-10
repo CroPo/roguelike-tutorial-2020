@@ -1,8 +1,7 @@
 package com.cropo.world.dungeon.layout
 
 import com.cropo.extension.create
-import com.cropo.world.dungeon.LayoutElement
-import com.cropo.world.dungeon.LayoutElement.*
+import com.cropo.world.dungeon.layout.LayoutElement.*
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Rect
 import kotlin.random.Random

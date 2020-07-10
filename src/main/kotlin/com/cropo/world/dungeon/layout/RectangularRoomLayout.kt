@@ -1,6 +1,5 @@
 package com.cropo.world.dungeon.layout
 
-import com.cropo.world.dungeon.LayoutElement
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Rect
 

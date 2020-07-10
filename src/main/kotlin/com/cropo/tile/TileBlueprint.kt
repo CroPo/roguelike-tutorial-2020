@@ -50,7 +50,7 @@ object TileBlueprint {
 
     fun troll(): Tile {
         return Tile.newBuilder()
-            .withCharacter('o')
+            .withCharacter('T')
             .withBackgroundColor(TileColor.transparent())
             .withForegroundColor(TileColor.create(10, 100, 10))
             .build()
