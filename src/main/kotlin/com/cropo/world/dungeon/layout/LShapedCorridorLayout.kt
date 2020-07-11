@@ -10,11 +10,10 @@ import kotlin.random.Random
  * Generate an L-shaped corridor
  */
 class LShapedCorridorLayout(
-    private val rng: Random,
     private val from: Position,
     private val to: Position
 ) : SectionLayoutStrategy {
-    override fun generateTerrain(bounds: Rect): Map<Position, LayoutElement> {
+    override fun generateTerrain(bounds: Rect, rng: Random): Map<Position, LayoutElement> {
         val terrain = mutableMapOf<Position, LayoutElement>()
 
         val corner = if (rng.nextBoolean()) {

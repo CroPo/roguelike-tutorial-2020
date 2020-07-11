@@ -607,3 +607,47 @@ The complete `spawn` method now looks like this:
         }
     }
 ```
+
+In order to use this I need to add a method to the `Section` classe, too. This also made a few smaller changes 
+to the `Section` class necessary - `Random` and `EntityEngine` are now private members of the class. This change
+also affects `SectionLayoutStrategy` - `Random` is now a mandatory parameter of `generate`. I won't list all 
+the changes here now, there are too much small ones on too many places, so here is just the updated `Section`:
+
+```kotlin
+class Section(
+    val bounds: Rect,
+    private val rng: Random,
+    private val entityEngine: EntityEngine
+) {
+    private val internalLayout: MutableMap<Position, LayoutElement> = HashMap()
+
+    val layout: Map<Position, LayoutElement>
+        get() = internalLayout
+
+    init {
+        bounds.fetchPositions().forEach {
+            internalLayout[it] = WALL
+        }
+    }
+
+    fun generateLayoutWith(strategy: SectionLayoutStrategy) = also {
+        mergeLayout(strategy.generateTerrain(bounds, rng))
+    }
+
+    fun spawnWith(strategy: SpawnStrategy) = also {
+        strategy.spawn(rng, entityEngine, layout)
+    }
+
+    fun mergeInto(targetSection: Section) = also {
+        targetSection.merge(this)
+    }
+
+   // ...
+
+}
+```
+
+I'm not 100% happy that I directly create entities for monsters at this point, because it breaks with the concept
+of `Section` a bit, but for now I think it works. The other way would have been to just generate spawn points and 
+generate entities later in the dungeon generator - just like I did it with the level layout itself. I might come back
+to that later.

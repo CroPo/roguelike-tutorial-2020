@@ -13,6 +13,7 @@ import com.cropo.extension.create
 import com.cropo.world.dungeon.layout.AllWallsLayout
 import com.cropo.world.dungeon.layout.LShapedCorridorLayout
 import com.cropo.world.dungeon.layout.LayoutElement
+import com.cropo.world.dungeon.spawn.SimpleEnemies
 import org.hexworks.cobalt.core.api.UUID
 import kotlin.random.Random
 
@@ -20,15 +21,16 @@ class DungeonGenerator(private val mapSize: Size) {
 
     fun generateLevel(entityEngine: EntityEngine, player: UUID) {
 
-        val level = Section(Rect.create(Position.topLeftCorner(), mapSize))
-        level.generateLayoutWith(AllWallsLayout())
         val rng = Random.Default
+        val level = Section(Rect.create(Position.topLeftCorner(), mapSize), rng, entityEngine)
+        level.generateLayoutWith(AllWallsLayout())
 
         val rooms: MutableList<Section> = mutableListOf()
 
         val roomSizeMin = 6
         val roomSizeMax = 10
         val maxRooms = 30
+        val maxMonstersPerRoom = 3
 
         for (i in 0 until maxRooms) {
             var bounds: Rect
@@ -47,10 +49,12 @@ class DungeonGenerator(private val mapSize: Size) {
                     Rect.create(bounds.position.minus(Position.offset1x1()), bounds.size.plus(Size.create(2, 2)))
             } while (rooms.any { it.bounds.intersects(outerBounds) })
 
-            val section = Section(bounds)
+            val section = Section(bounds, rng, entityEngine)
             section.generateLayoutWith(RectangularRoomLayout())
+                .spawnWith(SimpleEnemies(maxMonstersPerRoom))
+                .mergeInto(level)
+
             rooms.add(section)
-            level.merge(section)
         }
 
         entityEngine.get(player, GridPosition::class)!!.position2D = rooms.first().bounds.center
@@ -58,8 +62,8 @@ class DungeonGenerator(private val mapSize: Size) {
         for (i in 1 until rooms.size) {
             val from = rooms[i].bounds.center
             val to = rooms[i - 1].bounds.center
-            val corridor = Section(Rect.create(from, to))
-            corridor.generateLayoutWith(LShapedCorridorLayout(rng, from, to))
+            val corridor = Section(Rect.create(from, to), rng, entityEngine)
+            corridor.generateLayoutWith(LShapedCorridorLayout(from, to))
             level.merge(corridor)
         }
 
