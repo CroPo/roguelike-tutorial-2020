@@ -17,7 +17,7 @@ class SimpleEnemies(private var maxMonsters: Int) : SpawnStrategy {
         val availablePositions =
             layout.filterValues { layoutElement -> layoutElement == LayoutElement.FLOOR }.keys.toList()
 
-        if(availablePositions.size > maxMonsters){
+        if(availablePositions.size < maxMonsters){
             maxMonsters = availablePositions.size
         }
 

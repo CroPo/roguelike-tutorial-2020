@@ -651,3 +651,16 @@ I'm not 100% happy that I directly create entities for monsters at this point, b
 of `Section` a bit, but for now I think it works. The other way would have been to just generate spawn points and 
 generate entities later in the dungeon generator - just like I did it with the level layout itself. I might come back
 to that later.
+
+After the first test run I think I _might_ have created a little bug:
+
+![Bug](image/monster_spawning_bug.png)
+
+And all of this because of a little stupid mistake here:
+```kotlin
+if(availablePositions.size > maxMonsters){
+    maxMonsters = availablePositions.size
+}
+```
+
+Onto the next topic, now!
