@@ -9,5 +9,5 @@ interface SpawnStrategy {
     /**
      * Spawn a set of objects in the given area.
      */
-    fun spawn(rng: Random, entityEngine: EntityEngine, terrain: Map<Position, LayoutElement>)
+    fun spawn(rng: Random, entityEngine: EntityEngine, layout: Map<Position, LayoutElement>)
 }

@@ -519,3 +519,91 @@ private fun mergeLayout(layout: Map<Position, LayoutElement>) {
 ```
 
 I also did a bit of renaming, because I always think the term _data_ is simply too generic.
+
+Onto the monster spawning now! First I need to determine the total number of monsters I want to spawn in each section.
+This is just a random number from 0 to (including) the maximum number of monsters per room
+
+```kotlin
+val numberOfMonsters = rng.nextInt(maxMonsters+1)
+```
+
+Next, I need a list of all positions I can spawn an enemy to. The most simple way (= easiest to code, not necessaily the
+most simple for the CPU to handle) I can imagine is this:
+
+```kotlin
+val availablePositions = layout.filterValues { layoutElement -> layoutElement == LayoutElement.FLOOR }.keys.toList()
+```
+
+Because `keys` would only return a `Set<Position>`, which is iterable, but has no `get` method to get one specific element
+I needed to add `toList()` at the end, because a `List<Position>` has the access capabilities I need.
+
+Next, a simple `for` loop which selects a random position an adds a monster on it.
+
+```kotlin
+for (i in 0 until numberOfMonsters) {
+    val position = availablePositions[rng.nextInt(availablePositions.size)]
+    MonsterBlueprint.orc(entityEngine, position.to3DPosition(0))
+}
+```
+
+Technically, it's possible to add multiple monsters to the same position. The easiest way to fix that is to save all
+occupied positions in a separate list, and check if the position is already occupied before adding a new monster.
+Instead of the `for` loop I now need a `while` loop which checks against the number of occupied positions.
+
+```kotlin
+while(occupiedPositions.size < numberOfMonsters) {
+    val position = availablePositions[rng.nextInt(availablePositions.size)]
+    if(occupiedPositions.contains(position)) {
+        continue;
+    }
+    MonsterBlueprint.orc(entityEngine, position.to3DPosition(0))
+    occupiedPositions.add(position)
+}
+```
+
+And to add random variation to the spawned monsters, I just need to change the line
+`MonsterBlueprint.orc(entityEngine, position.to3DPosition(0))` into this:
+
+```kotlin
+if (rng.nextInt(10) > 7) {
+    MonsterBlueprint.troll(entityEngine, position.to3DPosition(0))
+} else {
+    MonsterBlueprint.orc(entityEngine, position.to3DPosition(0))
+}
+```
+
+One issue is left - theoretically, the number of available positions could be less than the number of monsters
+which should be generated. This is _very_ theoretical with the current parameters, but if I increase the monster
+limit it could really become an issue. At least there is an easy fix for that.
+
+The complete `spawn` method now looks like this:
+```kotlin
+ override fun spawn(
+        rng: Random,
+        entityEngine: EntityEngine,
+        layout: Map<Position, LayoutElement>
+    ) {
+        val availablePositions =
+            layout.filterValues { layoutElement -> layoutElement == LayoutElement.FLOOR }.keys.toList()
+
+        if(availablePositions.size > maxMonsters){
+            maxMonsters = availablePositions.size
+        }
+        
+        val numberOfMonsters = rng.nextInt(maxMonsters + 1)
+        val occupiedPositions: MutableList<Position> = mutableListOf()
+
+        while (occupiedPositions.size < numberOfMonsters) {
+            val position = availablePositions[rng.nextInt(availablePositions.size)]
+            if (occupiedPositions.contains(position)) {
+                continue;
+            }
+            if (rng.nextInt(10) > 7) {
+                MonsterBlueprint.troll(entityEngine, position.to3DPosition(0))
+            } else {
+                MonsterBlueprint.orc(entityEngine, position.to3DPosition(0))
+            }
+            occupiedPositions.add(position)
+        }
+    }
+```
