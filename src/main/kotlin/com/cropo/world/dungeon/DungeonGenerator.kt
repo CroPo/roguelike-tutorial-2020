@@ -10,6 +10,7 @@ import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Rect
 import org.hexworks.zircon.api.data.Size
 import com.cropo.extension.create
+import com.cropo.world.dungeon.layout.AllWallsLayout
 import com.cropo.world.dungeon.layout.LShapedCorridorLayout
 import com.cropo.world.dungeon.layout.LayoutElement
 import org.hexworks.cobalt.core.api.UUID
@@ -20,6 +21,7 @@ class DungeonGenerator(private val mapSize: Size) {
     fun generateLevel(entityEngine: EntityEngine, player: UUID) {
 
         val level = Section(Rect.create(Position.topLeftCorner(), mapSize))
+        level.generateLayoutWith(AllWallsLayout())
         val rng = Random.Default
 
         val rooms: MutableList<Section> = mutableListOf()

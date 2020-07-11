@@ -472,3 +472,50 @@ data class Name(
 
 I also added a blueprint for both the `orc` and the `troll`, so now I can finally start placing them in
 the dungeon.
+
+To achieve that, I just have to upgrade the stuff which already exists, and make something similar
+to the `SectionLayoutStrategy`. I will just call it `SpawnStrategy` I think.
+
+I will spawn the entities directly - that I means I will both need the random number generator, and
+the `EntityEngine`.
+
+```kotlin
+interface SpawnStrategy {
+    fun spawn(rng: Random, entityEngine: EntityEngine, terrain: Map<Position, LayoutElement>)
+}
+```
+
+For my `SimpleEnemies` Strategy I will pick a random available location in each `Section` and spawn
+enemies just like the tutorial suggests.
+
+But before that, to make everything easier, I will change the `Section` - from now on it will no longer be automatically
+filled with `WALL` elements. To still be able to do that for the main level `Section`, I added the `AllWallsLAyout`
+
+```kotlin
+class AllWallsLayout : SectionLayoutStrategy {
+    override fun generateTerrain(bounds: Rect): Map<Position, LayoutElement> {
+        val terrain = mutableMapOf<Position, LayoutElement>()
+        bounds.fetchPositions().forEach {
+            terrain[it] = LayoutElement.WALL
+        }
+        return terrain;
+    }
+}
+```
+
+I also neede to upgrade the `mergeData` method of `Section` - which simply skipped all `WALL` tiles generated in
+each `Section`. This wasn't practical anymore, since I needed to actively merge walls ontop of empty blocks with
+the new `AllWallsLayout`
+
+```kotlin
+private fun mergeLayout(layout: Map<Position, LayoutElement>) {
+    layout.filter { (position, _) -> bounds.containsPosition(position) }
+        .forEach { (position, element) ->
+            if (internalLayout[position] != FLOOR) {
+                internalLayout[position] = element
+            }
+        }
+}
+```
+
+I also did a bit of renaming, because I always think the term _data_ is simply too generic.

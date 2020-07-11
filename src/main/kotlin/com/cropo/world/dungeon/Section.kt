@@ -32,14 +32,14 @@ class Section(
      * with the given [SectionLayoutStrategy]
      */
     fun generateLayoutWith(strategy: SectionLayoutStrategy) {
-        mergeData(strategy.generateTerrain(bounds))
+        mergeLayout(strategy.generateTerrain(bounds))
     }
 
     /**
      * Merge another [Section] into this one
      */
     fun merge(section: Section) {
-        mergeData(section.layout)
+        mergeLayout(section.layout)
     }
 
     /**
@@ -47,12 +47,12 @@ class Section(
      *
      * Everything outside the bounds of this [Section] will not be merged
      */
-    private fun mergeData(data: Map<Position, LayoutElement>) {
-        data.filter { entry -> entry.value != WALL }
-            .filter { entry -> bounds.containsPosition(entry.key) }
+    private fun mergeLayout(layout: Map<Position, LayoutElement>) {
+        layout.filter { (position, _) -> bounds.containsPosition(position) }
             .forEach { (position, element) ->
-                internalLayout[position] = element
+                if (internalLayout[position] != FLOOR) {
+                    internalLayout[position] = element
+                }
             }
     }
-
 }
