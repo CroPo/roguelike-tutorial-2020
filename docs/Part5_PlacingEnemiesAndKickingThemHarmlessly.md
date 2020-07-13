@@ -664,3 +664,35 @@ if(availablePositions.size > maxMonsters){
 ```
 
 Onto the next topic, now!
+
+## Bumping into enemies
+
+Technically, bumping into entities is already handled by the `GridAttributes` component, but on the more practical side,
+I need to be able to distinguish between bumping into a wall (blocked movement), bumping into an enemy (attacking them),
+and maybe bumping into other stuff, like a door (opening it).
+
+I will add new components - `Terrain` and `Actor` - which do not have any data for now, just empty classes. Their 
+main purpose is to make different things appear in the console when the player bumps into them. 
+
+```kotlin
+class Terrain : Component
+
+class Actor : Component
+```
+
+I also added them to the matching blueprints, and to the player creation. Of course, these more-or-less _entity type_
+components remove the necessity of the `tileLayer` which is defined in `GridTile`. I will also merge the
+contents of `GridAttributes` into `GridTile`.
+
+```kotlin
+data class GridTile(
+    val tileVisible: Tile,
+    val tileHidden: Tile? = null,
+    val isBlocking: Boolean = false,
+    val isTransparent: Boolean = false,
+    var isExplored: Boolean = false
+) : Component
+```
+
+I bet you know already what that means - yes, exactly that! Changes pretty much everywhere which could possible break
+everything!

@@ -1,9 +1,6 @@
 package com.cropo.entity
 
-import com.cropo.entity.component.GridAttributes
-import com.cropo.entity.component.GridPosition
-import com.cropo.entity.component.GridTile
-import com.cropo.entity.component.Name
+import com.cropo.entity.component.*
 import com.cropo.tile.TileBlueprint
 import com.cropo.tile.TileLayer
 import org.hexworks.cobalt.core.api.UUID
@@ -15,6 +12,7 @@ object MonsterBlueprint {
     fun orc(engine: EntityEngine, position: Position3D): UUID {
         return EntityBuilder.createBuilder(engine).with(
             setOf(
+                Actor(),
                 GridPosition(position),
                 Name(
                     name = "Orc",
@@ -35,6 +33,7 @@ object MonsterBlueprint {
     fun troll(engine: EntityEngine, position: Position3D): UUID {
         return EntityBuilder.createBuilder(engine).with(
             setOf(
+                Actor(),
                 GridPosition(position),
                 Name(
                     name = "Troll",

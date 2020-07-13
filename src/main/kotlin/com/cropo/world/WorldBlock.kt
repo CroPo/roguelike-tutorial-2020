@@ -20,21 +20,25 @@ import org.hexworks.zircon.api.data.base.BaseBlock
 class WorldBlock(private val entityEngine: EntityEngine) :
     BaseBlock<Tile>(Tile.empty(), persistentMapOf()) {
 
-    private val entities: MutableList<UUID> = mutableListOf()
+    private val entities: MutableMap<TileLayer, MutableList<UUID>> = mutableMapOf()
+
+    init {
+        TileLayer.values().forEach { layer ->
+            entities[layer] = mutableListOf()
+        }
+    }
+
 
     var isVisible = false
 
     private val terrainLayerEntities: List<UUID>
-        get() = entities.filter {
-            entityEngine.has(it, GridTile::class)
-                    && entityEngine.get(it, GridTile::class)!!.layer == TileLayer.TERRAIN
-        }
+        get() = entities[TileLayer.TERRAIN]!!
 
     private val exploredEmptyTile: Tile?
         get() =
             terrainLayerEntities.filter {
-                entityEngine.has(it, GridAttributes::class)
-                        && entityEngine.get(it, GridAttributes::class)!!.isExplored
+                entityEngine.has(it, GridTile::class)
+                        && entityEngine.get(it, GridTile::class)!!.isExplored
             }.map {
                 entityEngine.get(it, GridTile::class)!!.tileHidden
             }.firstOrNull()
@@ -69,7 +73,7 @@ class WorldBlock(private val entityEngine: EntityEngine) :
      * Add an entity to this block. If the entity doesn't have the [GridTile] component, it won't be added.
      */
     fun addEntity(entity: UUID) {
-        if(!entityEngine.has(entity, GridTile::class)) {
+        if (!entityEngine.has(entity, GridTile::class)) {
             return
         }
         entities.add(entity)
@@ -88,7 +92,7 @@ class WorldBlock(private val entityEngine: EntityEngine) :
     /**
      * Get an (immutable) [List] of all entities which are present on this block
      */
-    fun getEntityList() : List<UUID> {
+    fun getEntityList(): List<UUID> {
         return entities
     }
 

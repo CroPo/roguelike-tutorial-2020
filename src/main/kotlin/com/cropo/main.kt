@@ -28,12 +28,13 @@ fun main(args: Array<String>) {
     val entityEngine = EntityEngine()
 
     val player = EntityBuilder.createBuilder(entityEngine).with(
-        mutableListOf(
+        setOf(
+            Actor(),
+            GridPosition(),
             Name(
                 name = "Player",
                 description = "This is you"
             ),
-            GridPosition(),
             GridAttributes(
                 isBlocking = true,
                 isTransparent = true
