@@ -2,7 +2,6 @@ package com.cropo.entity
 
 import com.cropo.entity.component.*
 import com.cropo.tile.TileBlueprint
-import com.cropo.tile.TileLayer
 import org.hexworks.cobalt.core.api.UUID
 import org.hexworks.zircon.api.data.Position3D
 
@@ -19,9 +18,7 @@ object MonsterBlueprint {
                     description = "A regular greenskin"
                 ),
                 GridTile(
-                    tileVisible = TileBlueprint.orc()
-                ),
-                GridAttributes(
+                    tileVisible = TileBlueprint.orc(),
                     isTransparent = true,
                     isBlocking = true
                 )
@@ -39,9 +36,7 @@ object MonsterBlueprint {
                     description = "Big, hairy and hungry"
                 ),
                 GridTile(
-                    tileVisible = TileBlueprint.troll()
-                ),
-                GridAttributes(
+                    tileVisible = TileBlueprint.troll(),
                     isTransparent = true,
                     isBlocking = true
                 )

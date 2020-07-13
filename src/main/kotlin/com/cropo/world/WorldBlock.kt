@@ -2,10 +2,8 @@ package com.cropo.world
 
 import com.cropo.entity.EntityEngine
 import com.cropo.entity.component.Actor
-import com.cropo.entity.component.GridAttributes
 import com.cropo.entity.component.GridTile
 import com.cropo.entity.component.Terrain
-import com.cropo.tile.TileLayer
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import org.hexworks.cobalt.core.api.UUID
@@ -40,7 +38,6 @@ class WorldBlock(private val entityEngine: EntityEngine) :
             }.map {
                 entityEngine.get(it, GridTile::class)!!.tileHidden
             }.firstOrNull()
-
 
     override val emptyTile: Tile
         get() =

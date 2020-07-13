@@ -5,7 +5,6 @@ import com.cropo.entity.EntityBuilder
 import com.cropo.entity.EntityEngine
 import com.cropo.entity.component.*
 import com.cropo.tile.TileBlueprint
-import com.cropo.tile.TileLayer
 import com.cropo.world.dungeon.DungeonGenerator
 import com.cropo.world.World
 import com.cropo.world.WorldBlock
@@ -35,12 +34,10 @@ fun main(args: Array<String>) {
                 name = "Player",
                 description = "This is you"
             ),
-            GridAttributes(
+            GridTile(
+                tileVisible = TileBlueprint.player(),
                 isBlocking = true,
                 isTransparent = true
-            ),
-            GridTile(
-                tileVisible = TileBlueprint.player()
             ),
             FieldOfView()
         )

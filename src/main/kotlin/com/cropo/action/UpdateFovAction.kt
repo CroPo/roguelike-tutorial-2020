@@ -2,8 +2,8 @@ package com.cropo.action
 
 import com.cropo.engine.Engine
 import com.cropo.entity.component.FieldOfView
-import com.cropo.entity.component.GridAttributes
 import com.cropo.entity.component.GridPosition
+import com.cropo.entity.component.GridTile
 import org.hexworks.cobalt.core.api.UUID
 import org.hexworks.zircon.api.data.Position
 import org.hexworks.zircon.api.data.Position3D
@@ -43,7 +43,7 @@ class UpdateFovAction : Action {
                     engine.gameArea.fetchBlockAt(linePosition.to3DPosition(0)).get().getEntityList()
 
                 if (entitiesOnPosition.mapNotNull {
-                        engine.entityEngine.get(it, GridAttributes::class)
+                        engine.entityEngine.get(it, GridTile::class)
                     }.any {
                         !it.isTransparent
                     }) {

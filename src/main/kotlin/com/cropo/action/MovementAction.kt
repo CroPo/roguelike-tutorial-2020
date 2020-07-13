@@ -1,9 +1,8 @@
 package com.cropo.action
 
 import com.cropo.engine.Engine
-import com.cropo.entity.component.FieldOfView
-import com.cropo.entity.component.GridAttributes
 import com.cropo.entity.component.GridPosition
+import com.cropo.entity.component.GridTile
 import org.hexworks.cobalt.core.api.UUID
 
 /**
@@ -27,7 +26,7 @@ class MovementAction(val dx: Int = 0, val dy: Int = 0) : Action {
                 "Can't move beyond the edge of the world"
             )
             entitiesOnTarget.mapNotNull {
-                engine.entityEngine.get(it, GridAttributes::class)
+                engine.entityEngine.get(it, GridTile::class)
             }.any {
                 it.isBlocking
             } -> println("Walked into a wall. BONK!")

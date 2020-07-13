@@ -1,6 +1,5 @@
 package com.cropo.entity
 
-import com.cropo.entity.component.GridAttributes
 import com.cropo.entity.component.GridPosition
 import com.cropo.entity.component.GridTile
 import com.cropo.entity.component.Terrain
@@ -17,9 +16,7 @@ object EntityBlueprint {
                 GridPosition(position),
                 GridTile(
                     tileVisible = TileBlueprint.wall(),
-                    tileHidden = TileBlueprint.wallExplored()
-                ),
-                GridAttributes(
+                    tileHidden = TileBlueprint.wallExplored(),
                     isBlocking = true
                 )
             )
@@ -33,9 +30,7 @@ object EntityBlueprint {
                 GridPosition(position),
                 GridTile(
                     tileVisible = TileBlueprint.floor(),
-                    tileHidden = TileBlueprint.floorExplored()
-                ),
-                GridAttributes(
+                    tileHidden = TileBlueprint.floorExplored(),
                     isTransparent = true
                 )
             )
