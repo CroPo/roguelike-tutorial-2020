@@ -755,3 +755,7 @@ override fun perform(engine: Engine, entityId: UUID) {
 ```
 And with that, I think I will finish this part of the tutorial. I know, there are some more steps in the tutorial, but
 I won't do those now, because I want to rewrite the whole `Action` stuff in the next part, anyways.
+
+## Ok, one more thing!
+There is a little, but nasty bug in the dungoen generator. When it's not possible to generate all 30 rooms, it falls
+into an endless loop trying. So I will just add a system of maximum generator attempts per room, this should fix it.

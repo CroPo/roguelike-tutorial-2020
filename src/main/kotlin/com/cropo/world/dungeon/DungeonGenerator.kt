@@ -30,11 +30,16 @@ class DungeonGenerator(private val mapSize: Size) {
         val roomSizeMin = 6
         val roomSizeMax = 10
         val maxRooms = 30
+        val maxAttemptsPerRoom = 5
         val maxMonstersPerRoom = 3
 
         for (i in 0 until maxRooms) {
             var bounds: Rect
+            var attempts = 0
+            var intersectsAnotherRoom = false
+
             do {
+                attempts++
                 val size: Size =
                     Size.create(rng.nextInt(roomSizeMin, roomSizeMax + 1), rng.nextInt(roomSizeMin, roomSizeMax + 1))
                 val position =
@@ -47,14 +52,19 @@ class DungeonGenerator(private val mapSize: Size) {
                 // the individual rectangular rooms
                 val outerBounds =
                     Rect.create(bounds.position.minus(Position.offset1x1()), bounds.size.plus(Size.create(2, 2)))
-            } while (rooms.any { it.bounds.intersects(outerBounds) })
 
-            val section = Section(bounds, rng, entityEngine)
-            section.generateLayoutWith(RectangularRoomLayout())
-                .spawnWith(SimpleEnemies(maxMonstersPerRoom))
-                .mergeInto(level)
+                intersectsAnotherRoom = rooms.any { it.bounds.intersects(outerBounds) };
 
-            rooms.add(section)
+            } while (intersectsAnotherRoom && attempts < maxAttemptsPerRoom)
+
+            if (!intersectsAnotherRoom) {
+                val section = Section(bounds, rng, entityEngine)
+                section.generateLayoutWith(RectangularRoomLayout())
+                    .spawnWith(SimpleEnemies(maxMonstersPerRoom))
+                    .mergeInto(level)
+
+                rooms.add(section)
+            }
         }
 
         entityEngine.get(player, GridPosition::class)!!.position2D = rooms.first().bounds.center
