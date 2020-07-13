@@ -723,3 +723,35 @@ private val terrainLayerEntities: List<UUID>
         }
 ```
 
+So, now to actually kicking enemies. First of all, a small change in `MovementAction` is necessary
+
+```kotlin
+override fun perform(engine: Engine, entityId: UUID) {
+    if (!engine.entityEngine.has(entityId, GridPosition::class)) {
+        return
+    }
+
+    val entityPosition = engine.entityEngine.get(entityId, GridPosition::class)
+    val targetPosition = entityPosition!!.position3D.withRelativeX(dx).withRelativeY(dy)
+    val entitiesOnTarget =
+        engine.gameArea.fetchBlockAt(targetPosition).get().getEntityList().filter {
+            engine.entityEngine.has(it, GridTile::class) &&
+                    engine.entityEngine.get(it, GridTile::class)!!.isBlocking
+        }
+
+    when {
+        entitiesOnTarget.any {
+            engine.entityEngine.has(it, Actor::class)
+        } -> println("Kicked someone. They don't really mind that")
+        entitiesOnTarget.any {
+            engine.entityEngine.has(it, Terrain::class)
+        } -> println("Bumped into something. BONK!")
+        else -> {
+            engine.gameArea.fetchBlockAt(entityPosition.position3D).get().removeEntity(entityId)
+            engine.gameArea.fetchBlockAt(targetPosition).get().addEntity(entityId)
+            entityPosition.position3D = targetPosition
+        }
+    }
+```
+And with that, I think I will finish this part of the tutorial. I know, there are some more steps in the tutorial, but
+I won't do those now, because I want to rewrite the whole `Action` stuff in the next part, anyways.
