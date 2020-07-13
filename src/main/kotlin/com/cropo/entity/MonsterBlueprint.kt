@@ -19,8 +19,7 @@ object MonsterBlueprint {
                     description = "A regular greenskin"
                 ),
                 GridTile(
-                    tileVisible = TileBlueprint.orc(),
-                    layer = TileLayer.ACTOR
+                    tileVisible = TileBlueprint.orc()
                 ),
                 GridAttributes(
                     isTransparent = true,
@@ -40,8 +39,7 @@ object MonsterBlueprint {
                     description = "Big, hairy and hungry"
                 ),
                 GridTile(
-                    tileVisible = TileBlueprint.troll(),
-                    layer = TileLayer.ACTOR
+                    tileVisible = TileBlueprint.troll()
                 ),
                 GridAttributes(
                     isTransparent = true,

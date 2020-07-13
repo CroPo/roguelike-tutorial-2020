@@ -696,3 +696,30 @@ data class GridTile(
 
 I bet you know already what that means - yes, exactly that! Changes pretty much everywhere which could possible break
 everything!
+
+The changes aren't to severe, though. Just a little change in the entity sorting of `WorldBlock`
+```kotlin
+entities.sortBy{
+    entityId ->
+    when {
+        entityEngine.has(entityId, Actor::class) -> 1
+        entityEngine.has(entityId, Terrain::class) -> 10
+        else -> Int.MAX_VALUE
+    }
+}
+```
+Per default, this is sorted ascending, so the entity which comes on top should get the lowest number. Anything without
+a specified order is sent right to the bottom.
+
+I don't really consider this macig numbers, since the only meaning of the numbers is their numeric sorting value, therfor 
+I don't use constants or an enum here (while I _could_ use the `TileLayer one, though)
+
+The other bigger change in this class was this:
+```kotlin
+private val terrainLayerEntities: List<UUID>
+        get() = entities.filter {
+            entityEngine.has(it, GridTile::class)
+                    && entityEngine.has(it, Terrain::class)
+        }
+```
+

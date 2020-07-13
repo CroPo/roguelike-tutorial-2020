@@ -40,8 +40,7 @@ fun main(args: Array<String>) {
                 isTransparent = true
             ),
             GridTile(
-                tileVisible = TileBlueprint.player(),
-                layer = TileLayer.ACTOR
+                tileVisible = TileBlueprint.player()
             ),
             FieldOfView()
         )

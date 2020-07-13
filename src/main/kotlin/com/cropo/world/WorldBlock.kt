@@ -1,8 +1,10 @@
 package com.cropo.world
 
 import com.cropo.entity.EntityEngine
+import com.cropo.entity.component.Actor
 import com.cropo.entity.component.GridAttributes
 import com.cropo.entity.component.GridTile
+import com.cropo.entity.component.Terrain
 import com.cropo.tile.TileLayer
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -20,19 +22,15 @@ import org.hexworks.zircon.api.data.base.BaseBlock
 class WorldBlock(private val entityEngine: EntityEngine) :
     BaseBlock<Tile>(Tile.empty(), persistentMapOf()) {
 
-    private val entities: MutableMap<TileLayer, MutableList<UUID>> = mutableMapOf()
-
-    init {
-        TileLayer.values().forEach { layer ->
-            entities[layer] = mutableListOf()
-        }
-    }
-
+    private val entities: MutableList<UUID> = mutableListOf()
 
     var isVisible = false
 
     private val terrainLayerEntities: List<UUID>
-        get() = entities[TileLayer.TERRAIN]!!
+        get() = entities.filter {
+            entityEngine.has(it, GridTile::class)
+                    && entityEngine.has(it, Terrain::class)
+        }
 
     private val exploredEmptyTile: Tile?
         get() =
@@ -77,8 +75,13 @@ class WorldBlock(private val entityEngine: EntityEngine) :
             return
         }
         entities.add(entity)
-        entities.sortBy {
-            entityEngine.get(it, GridTile::class)?.layer
+        entities.sortBy{
+            entityId ->
+            when {
+                entityEngine.has(entityId, Actor::class) -> 1
+                entityEngine.has(entityId, Terrain::class) -> 10
+                else -> Int.MAX_VALUE
+            }
         }
     }
 
